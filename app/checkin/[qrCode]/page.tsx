@@ -1,0 +1,95 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { CheckCircle, AlertCircle, User, Calendar } from "lucide-react"
+import Link from "next/link"
+import { getUserByQRCode } from "@/lib/db"
+import { CheckInButton } from "@/components/checkin/checkin-button"
+
+interface Props {
+  params: {
+    qrCode: string
+  }
+}
+
+export default async function CheckInPage({ params }: Props) {
+  const { qrCode } = params
+  const user = await getUserByQRCode(qrCode)
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <CardTitle className="text-red-600">Invalid QR Code</CardTitle>
+            <CardDescription>This QR code is not valid or has expired.</CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-sm text-muted-foreground mb-4">
+              Please check your QR code or contact event support for assistance.
+            </p>
+            <Button asChild variant="outline">
+              <Link href="/">Back to Home</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
+            <User className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+          </div>
+          <CardTitle>Event Check-in</CardTitle>
+          <CardDescription>8th World Congress on Rural & Agricultural Finance</CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-6">
+          {/* User Info */}
+          <div className="text-center space-y-2">
+            <h3 className="text-lg font-semibold">{user.name}</h3>
+            <p className="text-sm text-muted-foreground">{user.email}</p>
+            {user.organization && <p className="text-sm text-muted-foreground">{user.organization}</p>}
+            <Badge variant={user.role === "admin" ? "default" : user.role === "organizer" ? "secondary" : "outline"}>
+              {user.role}
+            </Badge>
+          </div>
+
+          {/* Check-in Status */}
+          {user.checked_in ? (
+            <div className="text-center space-y-4">
+              <div className="flex items-center justify-center gap-2 text-green-600">
+                <CheckCircle className="h-5 w-5" />
+                <span className="font-medium">Already Checked In</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Checked in on {new Date(user.check_in_time).toLocaleString()}
+              </p>
+              <Button asChild className="w-full">
+                <Link href="/attendee">Go to Attendee Portal</Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="text-center">
+                <Calendar className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Ready to check in to the event</p>
+              </div>
+              <CheckInButton qrCode={qrCode} userName={user.name} />
+            </div>
+          )}
+
+          {/* Event Info */}
+          <div className="border-t pt-4 text-center text-sm text-muted-foreground">
+            <p>Welcome to the 8th World Congress on Rural & Agricultural Finance</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

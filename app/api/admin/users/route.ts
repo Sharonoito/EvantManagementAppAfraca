@@ -1,0 +1,15 @@
+export const dynamic = "force-dynamic"
+
+import { NextResponse } from "next/server"
+import { getAllUsers } from "@/lib/db"
+
+export async function GET() {
+  try {
+    const users = await getAllUsers()
+    console.log("users",users)
+    return NextResponse.json(users)
+  } catch (error) {
+    console.error("Failed to fetch users:", error)
+    return NextResponse.json({ success: false, message: "Failed to fetch users" }, { status: 500 })
+  }
+}
