@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getAllUsers, getUserById } from "@/lib/db"
 import { generateQRCode, createCheckInURL } from "@/lib/qr-code"
 import { sendEmail, createQRCodeEmailTemplate } from "@/lib/email"
-import { uploadImage } from "@/lib/utils"
+import cloudinary from "@/lib/cloudinary"
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,9 +29,17 @@ export async function POST(request: NextRequest) {
           const checkInURL = createCheckInURL(user.qr_code)
           const qrCodeDataURL = await generateQRCode(checkInURL)
           
-          // Upload to Cloudinary
-          const imageUrl = await uploadImage(qrCodeDataURL, `qr_${user.id}`);
+          
+            // Convert buffer to base64 string
+            const base64 = qrCodeDataURL;//`data:image/png;base64,${Buffer.from(qrBuffer).toString("base64")}`;
+          
+            const result = await cloudinary.uploader.upload(base64, {
+              folder: "qrcodes",
+            });
+          
+            const imageUrl = result.secure_url
 
+          console.log('uploaded qr', imageUrl)
           console.log("qr for user" + user.name,qrCodeDataURL )
 
           // Create email template
