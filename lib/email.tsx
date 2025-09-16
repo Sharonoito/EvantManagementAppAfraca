@@ -115,7 +115,6 @@ export function createQRCodeEmailTemplate(name: string, qrCodeDataUrl: string, c
   `
 }
 
-// Legacy function for backward compatibility
 export async function sendQRCodeEmail(to: string, name: string, qrCodeDataUrl: string, qrCode: string) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
   const attendeePortalUrl = `${siteUrl}/attendee?email=${encodeURIComponent(to)}`
@@ -134,16 +133,16 @@ export async function sendQRCodeEmail(to: string, name: string, qrCodeDataUrl: s
   } catch (error) {
     console.error("Failed to send email:", error)
     if (error instanceof Error) {
-      console.error(`[v0] Error name: ${error.name}`)
-      console.error(`[v0] Error message: ${error.message}`)
-      console.error(`[v0] Error stack: ${error.stack}`)
+      console.error(`[v] Error name: ${error.name}`)
+      console.error(`[v] Error message: ${error.message}`)
+      console.error(`[v] Error stack: ${error.stack}`)
     }
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
   }
 }
 
 export async function sendTestEmail(to: string): Promise<boolean> {
-  console.log(`[v0] Sending test email to: ${to}`)
+  console.log(`[v] Sending test email to: ${to}`)
 
   const testHtml = `
     <h1>Test Email</h1>

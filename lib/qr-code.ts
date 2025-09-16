@@ -2,7 +2,7 @@ import QRCode from "qrcode"
 
 export async function generateQRCode(data: string): Promise<string> {
   try {
-    // Generate QR code as data URL (base64 encoded PNG)
+
     const qrCodeDataURL = await QRCode.toDataURL(data, {
       width: 300,
       margin: 2,
@@ -29,8 +29,6 @@ export async function generateQRCodeBuffer(data: string): Promise<Uint8Array> {
       },
     })
 
-    // Convert Node.js Buffer → Uint8Array
-    // return new Uint8Array(buffer)
     return buffer
 
   } catch (error) {
