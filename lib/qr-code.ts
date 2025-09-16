@@ -39,6 +39,6 @@ export async function generateQRCodeBuffer(data: string): Promise<Uint8Array> {
 }
 
 export function createCheckInURL(qrCode: string): string {
-  const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+  const baseURL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   return `${baseURL}/checkin/${qrCode}`
 }
