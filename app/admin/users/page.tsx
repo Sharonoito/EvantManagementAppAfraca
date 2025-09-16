@@ -46,13 +46,13 @@ export default function UsersPage() {
     }
   }
 
-  const handleSendAllQRCodes = async () => {
+  const handleSendAllQRCodes = async (userIds:string[]) => {
     setSendingQR(true)
     try {
       const response = await fetch("/api/admin/users/send-qr", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bulk: true }),
+        body: JSON.stringify({ userIds,bulk: true }),
       })
 
       const result = await response.json()
@@ -138,7 +138,7 @@ export default function UsersPage() {
             <Button
               variant="outline"
               className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
-              onClick={handleSendAllQRCodes}
+              onClick={ ()=> handleSendAllQRCodes(users.map(user => user.id))}
               disabled={sendingQR || users.length === 0}
             >
               <Mail className="h-4 w-4 mr-2" />

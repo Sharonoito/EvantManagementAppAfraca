@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar, Clock, MapPin, User, Users, Search } from "lucide-react"
 import Link from "next/link"
 import { getAllSessions, getAllEvents } from "@/lib/db"
+import { Key, ReactElement, JSXElementConstructor, ReactNode, ReactPortal, AwaitedReactNode } from "react"
 
 export default async function SessionsPage() {
   const sessions = await getAllSessions()
@@ -105,8 +106,8 @@ export default async function SessionsPage() {
 
                   <div className="grid gap-6">
                     {dateSessions
-                      .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
-                      .map((session) => (
+                      .sort((a: { start_time: string | number | Date }, b: { start_time: string | number | Date }) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
+                      .map((session: { id: Key | null | undefined; title: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; session_type: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; description: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; speaker_name: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; start_time: string | number | Date; end_time: string | number | Date; location: string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<AwaitedReactNode> | null | undefined; registration_count: any; max_attendees: any }) => (
                         <Card key={session.id} className="hover:shadow-lg transition-shadow">
                           <CardContent className="p-6">
                             <div className="flex items-start justify-between mb-4">

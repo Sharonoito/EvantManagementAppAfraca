@@ -1,10 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, AlertCircle, User, Calendar } from "lucide-react"
+import { AlertCircle, User, Calendar } from "lucide-react"
 import Link from "next/link"
 import { getUserByQRCode } from "@/lib/db"
 import { CheckInButton } from "@/components/checkin/checkin-button"
+import { redirect } from "next/navigation"   // ✅ server redirect
 
 interface Props {
   params: {
@@ -16,6 +17,7 @@ export default async function CheckInPage({ params }: Props) {
   const { qrCode } = params
   const user = await getUserByQRCode(qrCode)
 
+  // ✅ If QR invalid
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
@@ -38,6 +40,12 @@ export default async function CheckInPage({ params }: Props) {
     )
   }
 
+  // ✅ If already checked in → redirect to attendee/profile
+  if (user.checked_in) {
+    redirect("/attendee/profile")
+  }
+
+  // ✅ If not yet checked in → show check-in UI
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -54,35 +62,22 @@ export default async function CheckInPage({ params }: Props) {
           <div className="text-center space-y-2">
             <h3 className="text-lg font-semibold">{user.name}</h3>
             <p className="text-sm text-muted-foreground">{user.email}</p>
-            {user.organization && <p className="text-sm text-muted-foreground">{user.organization}</p>}
+            {user.organization && (
+              <p className="text-sm text-muted-foreground">{user.organization}</p>
+            )}
             <Badge variant={user.role === "admin" ? "default" : user.role === "organizer" ? "secondary" : "outline"}>
               {user.role}
             </Badge>
           </div>
 
-          {/* Check-in Status */}
-          {user.checked_in ? (
-            <div className="text-center space-y-4">
-              <div className="flex items-center justify-center gap-2 text-green-600">
-                <CheckCircle className="h-5 w-5" />
-                <span className="font-medium">Already Checked In</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Checked in on {new Date(user.check_in_time).toLocaleString()}
-              </p>
-              <Button asChild className="w-full">
-                <Link href="/attendee">Go to Attendee Portal</Link>
-              </Button>
+          {/* Check-in Button */}
+          <div className="space-y-4">
+            <div className="text-center">
+              <Calendar className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">Ready to check in to the event</p>
             </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="text-center">
-                <Calendar className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Ready to check in to the event</p>
-              </div>
-              <CheckInButton qrCode={qrCode} userName={user.name} />
-            </div>
-          )}
+            <CheckInButton qrCode={qrCode} userName={user.name} />
+          </div>
 
           {/* Event Info */}
           <div className="border-t pt-4 text-center text-sm text-muted-foreground">

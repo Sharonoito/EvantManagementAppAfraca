@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getAllUsers, getUserById } from "@/lib/db"
 import { generateQRCode, createCheckInURL } from "@/lib/qr-code"
 import { sendEmail, createQRCodeEmailTemplate } from "@/lib/email"
+import cloudinary from "@/lib/cloudinary"
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,9 +28,22 @@ export async function POST(request: NextRequest) {
           // Generate QR code
           const checkInURL = createCheckInURL(user.qr_code)
           const qrCodeDataURL = await generateQRCode(checkInURL)
+          
+          
+            // Convert buffer to base64 string
+            const base64 = qrCodeDataURL;//`data:image/png;base64,${Buffer.from(qrBuffer).toString("base64")}`;
+          
+            const result = await cloudinary.uploader.upload(base64, {
+              folder: "qrcodes",
+            });
+          
+            const imageUrl = result.secure_url
+
+          console.log('uploaded qr', imageUrl)
+          console.log("qr for user" + user.name,qrCodeDataURL )
 
           // Create email template
-          const emailHTML = createQRCodeEmailTemplate(user.name, qrCodeDataURL, checkInURL)
+          const emailHTML = createQRCodeEmailTemplate(user.name, imageUrl, checkInURL)
 
           // Send email
           const emailSent = await sendEmail({
@@ -39,6 +53,7 @@ export async function POST(request: NextRequest) {
           })
 
           if (emailSent) {
+            console.log("email sent")
             successCount++
             results.push({
               email: user.email,
@@ -46,6 +61,8 @@ export async function POST(request: NextRequest) {
               message: `QR code sent to ${user.name}`,
             })
           } else {
+            console.log("email not sent")
+
             results.push({
               email: user.email,
               success: false,
@@ -68,6 +85,8 @@ export async function POST(request: NextRequest) {
         results,
       })
     } else if (userIds && Array.isArray(userIds)) {
+      console.log("multiple")
+
       const results = []
       let successCount = 0
 
@@ -80,6 +99,8 @@ export async function POST(request: NextRequest) {
             // Generate QR code
             const checkInURL = createCheckInURL(user.qr_code)
             const qrCodeDataURL = await generateQRCode(checkInURL)
+            console.log("qr snippet",qrCodeDataURL.substring(0,40))
+
 
             // Create email template
             const emailHTML = createQRCodeEmailTemplate(user.name, qrCodeDataURL, checkInURL)
@@ -92,6 +113,8 @@ export async function POST(request: NextRequest) {
             })
 
             if (emailSent) {
+            console.log("email sent in multiple")
+
               successCount++
               results.push({
                 email: user.email,
@@ -99,6 +122,8 @@ export async function POST(request: NextRequest) {
                 message: `QR code sent to ${user.name}`,
               })
             } else {
+            console.log("email not sent in multiple")
+
               results.push({
                 email: user.email,
                 success: false,

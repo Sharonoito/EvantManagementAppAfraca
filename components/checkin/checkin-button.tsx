@@ -35,7 +35,7 @@ export function CheckInButton({ qrCode, userName }: Props) {
       if (data.success) {
         // Redirect to attendee portal after successful check-in
         setTimeout(() => {
-          router.push("/attendee")
+          router.push("/attendee/profile")
         }, 2000)
       }
     } catch (error) {

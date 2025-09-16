@@ -22,7 +22,7 @@ export default function HomePage() {
               <Link href="/admin">Admin Dashboard</Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="text-lg px-8 bg-transparent">
-              <Link href="/attendee">Attendee Portal</Link>
+              <Link href="/attendee/profile">Attendee Portal</Link>
             </Button>
           </div>
         </div>
