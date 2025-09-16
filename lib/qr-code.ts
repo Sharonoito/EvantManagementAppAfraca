@@ -11,6 +11,7 @@ export async function generateQRCode(data: string): Promise<string> {
         light: "#FFFFFF",
       },
     })
+    console.log(qrCodeDataURL)
     return qrCodeDataURL
   } catch (error) {
     console.error("Error generating QR code:", error)

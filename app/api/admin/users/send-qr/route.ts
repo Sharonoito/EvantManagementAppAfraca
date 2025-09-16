@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getAllUsers, getUserById } from "@/lib/db"
 import { generateQRCode, createCheckInURL } from "@/lib/qr-code"
 import { sendEmail, createQRCodeEmailTemplate } from "@/lib/email"
+import { uploadImage } from "@/lib/utils"
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,10 +28,14 @@ export async function POST(request: NextRequest) {
           // Generate QR code
           const checkInURL = createCheckInURL(user.qr_code)
           const qrCodeDataURL = await generateQRCode(checkInURL)
+          
+          // Upload to Cloudinary
+          const imageUrl = await uploadImage(qrCodeDataURL, `qr_${user.id}`);
+
           console.log("qr for user" + user.name,qrCodeDataURL )
 
           // Create email template
-          const emailHTML = createQRCodeEmailTemplate(user.name, qrCodeDataURL, checkInURL)
+          const emailHTML = createQRCodeEmailTemplate(user.name, imageUrl, checkInURL)
 
           // Send email
           const emailSent = await sendEmail({
