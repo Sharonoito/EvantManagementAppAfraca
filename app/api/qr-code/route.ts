@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const arrayBuffer = qrCodeBuffer.buffer.slice(
       qrCodeBuffer.byteOffset,
       qrCodeBuffer.byteOffset + qrCodeBuffer.byteLength
-    ) as ArrayBuffer   // 👈 cast here
+    ) as ArrayBuffer   
 
     return new NextResponse(arrayBuffer, {
       headers: {

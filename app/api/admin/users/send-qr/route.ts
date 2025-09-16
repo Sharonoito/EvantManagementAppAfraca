@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
           // Generate QR code
           const checkInURL = createCheckInURL(user.qr_code)
           const qrCodeDataURL = await generateQRCode(checkInURL)
+          console.log("qr for user" + user.name,qrCodeDataURL )
 
           // Create email template
           const emailHTML = createQRCodeEmailTemplate(user.name, qrCodeDataURL, checkInURL)
@@ -39,6 +40,7 @@ export async function POST(request: NextRequest) {
           })
 
           if (emailSent) {
+            console.log("email sent")
             successCount++
             results.push({
               email: user.email,
@@ -46,6 +48,8 @@ export async function POST(request: NextRequest) {
               message: `QR code sent to ${user.name}`,
             })
           } else {
+            console.log("email not sent")
+
             results.push({
               email: user.email,
               success: false,
@@ -68,6 +72,8 @@ export async function POST(request: NextRequest) {
         results,
       })
     } else if (userIds && Array.isArray(userIds)) {
+      console.log("multiple")
+
       const results = []
       let successCount = 0
 
@@ -80,6 +86,8 @@ export async function POST(request: NextRequest) {
             // Generate QR code
             const checkInURL = createCheckInURL(user.qr_code)
             const qrCodeDataURL = await generateQRCode(checkInURL)
+            console.log("qr snippet",qrCodeDataURL.substring(0,40))
+
 
             // Create email template
             const emailHTML = createQRCodeEmailTemplate(user.name, qrCodeDataURL, checkInURL)
@@ -92,6 +100,8 @@ export async function POST(request: NextRequest) {
             })
 
             if (emailSent) {
+            console.log("email sent in multiple")
+
               successCount++
               results.push({
                 email: user.email,
@@ -99,6 +109,8 @@ export async function POST(request: NextRequest) {
                 message: `QR code sent to ${user.name}`,
               })
             } else {
+            console.log("email not sent in multiple")
+
               results.push({
                 email: user.email,
                 success: false,
