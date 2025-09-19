@@ -24,6 +24,10 @@ jobs:
 
       - name: Build Next.js app
         run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          # add other vars if your app needs them at build-time
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
