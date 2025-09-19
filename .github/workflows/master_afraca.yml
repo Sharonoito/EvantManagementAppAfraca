@@ -26,8 +26,8 @@ jobs:
           npm run build --if-present
           npm run test --if-present
         env:
-          DATABASE_URL: ${{ secrets.postgresql://neondb_owner:npg_B5A4cfMlpDvj@ep-shiny-dawn-adyz3xs1-pooler.c-2.us-east-1.aws.neon.tech/latestafracaeventdb?sslmode=require&channel_binding=require }}
-          RESEND_API_KEY: ${{ secrets.re_g3mct8aH_3w9KzKBB1PKqYNVuYcrD4kcj}}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY}}
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
