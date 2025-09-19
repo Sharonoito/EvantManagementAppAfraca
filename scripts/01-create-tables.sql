@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
   check_in_time TIMESTAMP,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
+
 );
 
 -- Events table
