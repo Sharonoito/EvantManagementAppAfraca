@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getUserByEmail } from "@/lib/db"
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
