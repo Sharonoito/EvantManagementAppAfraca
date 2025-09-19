@@ -7,10 +7,10 @@ import Link from "next/link"
 // This would normally get the user from session/auth
 const mockUser = {
   id: "user_123",
-  name: "John Doe",
-  email: "john.doe@example.com",
+  name: "Sharon Akoth",
+  email: "oitosharonakoth@gmail.com",
   role: "attendee",
-  organization: "ABC Corporation",
+  organization: "Beijing Universityn",
   title: "Senior Manager",
   phone: "+1 (555) 123-4567",
   dietary_restrictions: "Vegetarian",

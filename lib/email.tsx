@@ -52,7 +52,7 @@ export async function sendEmail({ to, subject, html }: EmailOptions): Promise<bo
 
 export function createQRCodeEmailTemplate(name: string, qrCodeDataUrl: string, checkInURL: string): string {
   const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://evant-management-app-afraca.vercel.app"
-  const attendeePortalUrl = `${siteUrl}/attendee`
+  const attendeePortalUrl = `${siteUrl}/attendee/profile`
 
   return `
     <!DOCTYPE html>
