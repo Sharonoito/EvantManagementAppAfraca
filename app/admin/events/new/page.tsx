@@ -1,40 +1,79 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import { EventForm } from "@/components/admin/event-form"
+"use client"
+
+import { useState } from "react"
+import { createEvent } from "@/lib/actions/events"
+import { useRouter } from "next/navigation"
 
 export default function NewEventPage() {
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button asChild variant="outline" size="sm">
-            <Link href="/admin/events">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Events
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create New Event</h1>
-            <p className="text-gray-600 dark:text-gray-300">Set up a new event with sessions and details</p>
-          </div>
-        </div>
+  const router = useRouter()
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    start_date: "",
+    end_date: "",
+    location: "",
+    max_attendees: 0,
+  })
 
-        {/* Event Form */}
-        <div className="max-w-2xl">
-          <Card>
-            <CardHeader>
-              <CardTitle>Event Details</CardTitle>
-              <CardDescription>Fill in the information for your new event</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <EventForm />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    await createEvent(form)
+    router.push("/admin/events")
+  }
+
+  return (
+    <div className="container mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Create Event</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          placeholder="Title"
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          className="border rounded p-2 w-full"
+          required
+        />
+        <textarea
+          placeholder="Description"
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          className="border rounded p-2 w-full"
+        />
+        <input
+          type="datetime-local"
+          value={form.start_date}
+          onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+          required
+        />
+        <input
+          type="datetime-local"
+          value={form.end_date}
+          onChange={(e) => setForm({ ...form, end_date: e.target.value })}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Location"
+          value={form.location}
+          onChange={(e) => setForm({ ...form, location: e.target.value })}
+          className="border rounded p-2 w-full"
+        />
+        <input
+          type="number"
+          placeholder="Max Attendees"
+          value={form.max_attendees}
+          onChange={(e) =>
+            setForm({ ...form, max_attendees: Number(e.target.value) })
+          }
+          className="border rounded p-2 w-full"
+        />
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Save Event
+        </button>
+      </form>
     </div>
   )
 }

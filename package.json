@@ -63,6 +63,7 @@
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^13.0.0",
     "vaul": "^0.9.9",
     "xlsx": "latest",
     "zod": "3.25.67"
@@ -74,6 +75,7 @@
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/uuid": "^10.0.0",
     "postcss": "^8.5",
     "prisma": "^6.16.1",
     "tailwindcss": "^4.1.9",

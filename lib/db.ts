@@ -6,10 +6,9 @@ if (!process.env.DATABASE_URL) {
 
 export const sql = neon(process.env.DATABASE_URL)
 
-console.log("Connected to DB:", process.env.DATABASE_URL)
-
-
-// Database utility functions
+// -----------------------------
+// Users
+// -----------------------------
 export async function createUser(userData: {
   id: string
   email: string
@@ -26,15 +25,15 @@ export async function createUser(userData: {
 
   return await sql`
     INSERT INTO users (
-      id, email, name, role, organization, title, phone, 
-      dietary_restrictions, accessibility_needs, networking_interests, qr_code
+      id, email, name, role, organization, title, phone,
+      dietary_restrictions, accessibility_needs, networking_interests, qr_code, created_at, updated_at
     )
     VALUES (
-      ${userData.id}, ${userData.email}, ${userData.name}, 
-      ${userData.role || "attendee"}, ${userData.organization || ""}, 
-      ${userData.title || ""}, ${userData.phone || ""}, 
-      ${userData.dietary_restrictions || ""}, ${userData.accessibility_needs || ""}, 
-      ${userData.networking_interests || []}, ${qrCode}
+      ${userData.id}, ${userData.email}, ${userData.name},
+      ${userData.role || "attendee"}, ${userData.organization || ""},
+      ${userData.title || ""}, ${userData.phone || ""},
+      ${userData.dietary_restrictions || ""}, ${userData.accessibility_needs || ""},
+      ${userData.networking_interests || []}, ${qrCode}, NOW(), NOW()
     )
     RETURNING *
   `
@@ -63,7 +62,7 @@ export async function getUserByQRCode(qrCode: string) {
 
 export async function checkInUser(qrCode: string) {
   return await sql`
-    UPDATE users 
+    UPDATE users
     SET checked_in = TRUE, check_in_time = NOW(), updated_at = NOW()
     WHERE qr_code = ${qrCode}
     RETURNING *
@@ -72,17 +71,17 @@ export async function checkInUser(qrCode: string) {
 
 export async function getAllUsers() {
   return await sql`
-    SELECT *
-    FROM users 
-    ORDER BY created_at DESC
+    SELECT * FROM users ORDER BY created_at DESC
   `
 }
 
-// Event and session management functions
+// -----------------------------
+// Events
+// -----------------------------
 export async function getAllEvents() {
   return await sql`
-    SELECT e.*, 
-           COUNT(s.id) as session_count
+    SELECT e.*,
+           COUNT(s.id) AS session_count
     FROM events e
     LEFT JOIN sessions s ON e.id = s.event_id
     GROUP BY e.id
@@ -110,14 +109,14 @@ export async function createEvent(eventData: {
 }) {
   return await sql`
     INSERT INTO events (
-      id, title, description, start_date, end_date, location, 
-      max_attendees, registration_deadline, status
+      id, title, description, start_date, end_date, location,
+      max_attendees, registration_deadline, status, created_at, updated_at
     )
     VALUES (
-      ${eventData.id}, ${eventData.title}, ${eventData.description || ""}, 
-      ${eventData.start_date}, ${eventData.end_date}, ${eventData.location || ""}, 
-      ${eventData.max_attendees || null}, ${eventData.registration_deadline || null}, 
-      ${eventData.status || "draft"}
+      ${eventData.id}, ${eventData.title}, ${eventData.description || ""},
+      ${eventData.start_date}, ${eventData.end_date}, ${eventData.location || ""},
+      ${eventData.max_attendees ?? null}, ${eventData.registration_deadline ?? null},
+      ${eventData.status || "draft"}, NOW(), NOW()
     )
     RETURNING *
   `
@@ -137,15 +136,15 @@ export async function updateEvent(
   },
 ) {
   return await sql`
-    UPDATE events 
-    SET title = ${eventData.title}, 
-        description = ${eventData.description || ""}, 
-        start_date = ${eventData.start_date}, 
-        end_date = ${eventData.end_date}, 
-        location = ${eventData.location || ""}, 
-        max_attendees = ${eventData.max_attendees || null}, 
-        registration_deadline = ${eventData.registration_deadline || null}, 
-        status = ${eventData.status || "draft"}, 
+    UPDATE events
+    SET title = ${eventData.title},
+        description = ${eventData.description || ""},
+        start_date = ${eventData.start_date},
+        end_date = ${eventData.end_date},
+        location = ${eventData.location || ""},
+        max_attendees = ${eventData.max_attendees ?? null},
+        registration_deadline = ${eventData.registration_deadline ?? null},
+        status = ${eventData.status || "draft"},
         updated_at = NOW()
     WHERE id = ${eventId}
     RETURNING *
@@ -154,12 +153,15 @@ export async function updateEvent(
 
 export async function getEventSessions(eventId: string) {
   return await sql`
-    SELECT * FROM sessions 
-    WHERE event_id = ${eventId} 
+    SELECT * FROM sessions
+    WHERE event_id = ${eventId}
     ORDER BY start_time ASC
   `
 }
 
+// -----------------------------
+// Sessions
+// -----------------------------
 export async function createSession(sessionData: {
   id: string
   event_id: string
@@ -170,44 +172,53 @@ export async function createSession(sessionData: {
   start_time: string
   end_time: string
   location?: string
-  max_attendees?: number
+  max_attendees?: number | null
   session_type?: string
 }) {
   return await sql`
     INSERT INTO sessions (
       id, event_id, title, description, speaker_name, speaker_bio,
-      start_time, end_time, location, max_attendees, session_type
+      start_time, end_time, location, max_attendees, session_type, created_at, updated_at
     )
     VALUES (
       ${sessionData.id}, ${sessionData.event_id}, ${sessionData.title},
       ${sessionData.description || ""}, ${sessionData.speaker_name || ""},
       ${sessionData.speaker_bio || ""}, ${sessionData.start_time}, ${sessionData.end_time},
-      ${sessionData.location || ""}, ${sessionData.max_attendees || null},
-      ${sessionData.session_type || "presentation"}
+      ${sessionData.location || ""}, ${sessionData.max_attendees ?? null},
+      ${sessionData.session_type || "presentation"}, NOW(), NOW()
     )
     RETURNING *
   `
 }
 
 export async function getAllSessions() {
-  return await sql`
-    SELECT s.*, 
-           e.title as event_title,
-           COUNT(sr.id) as registration_count
+  const rows = await sql`
+    SELECT 
+      s.id,
+      s.title,
+      s.description,
+      s.speaker_name,
+      s.start_time,
+      s.end_time,
+      s.location,
+      e.title AS event_title,
+      COUNT(r.id) AS registration_count,
+      s.max_attendees
     FROM sessions s
-    LEFT JOIN events e ON s.event_id = e.id
-    LEFT JOIN session_registrations sr ON s.id = sr.session_id
+    LEFT JOIN events e ON e.id = s.event_id
+    LEFT JOIN session_registrations r ON r.session_id = s.id
     GROUP BY s.id, e.title
     ORDER BY s.start_time ASC
   `
+  return rows
 }
 
 export async function getSessionById(sessionId: string) {
   const result = await sql`
-    SELECT s.*, e.title as event_title
+    SELECT s.*, e.title AS event_title
     FROM sessions s
     LEFT JOIN events e ON s.event_id = e.id
-    WHERE s.id = ${sessionId} 
+    WHERE s.id = ${sessionId}
     LIMIT 1
   `
   return result[0] || null
@@ -228,18 +239,74 @@ export async function updateSession(
   },
 ) {
   return await sql`
-    UPDATE sessions 
-    SET title = ${sessionData.title}, 
-        description = ${sessionData.description || ""}, 
-        speaker_name = ${sessionData.speaker_name || ""}, 
-        speaker_bio = ${sessionData.speaker_bio || ""}, 
-        start_time = ${sessionData.start_time}, 
-        end_time = ${sessionData.end_time}, 
-        location = ${sessionData.location || ""}, 
-        max_attendees = ${sessionData.max_attendees || null}, 
-        session_type = ${sessionData.session_type || "presentation"}, 
+    UPDATE sessions
+    SET title = ${sessionData.title},
+        description = ${sessionData.description || ""},
+        speaker_name = ${sessionData.speaker_name || ""},
+        speaker_bio = ${sessionData.speaker_bio || ""},
+        start_time = ${sessionData.start_time},
+        end_time = ${sessionData.end_time},
+        location = ${sessionData.location || ""},
+        max_attendees = ${sessionData.max_attendees ?? null},
+        session_type = ${sessionData.session_type || "presentation"},
         updated_at = NOW()
     WHERE id = ${sessionId}
     RETURNING *
   `
+}
+
+// -----------------------------
+// Session Registrations
+// -----------------------------
+export async function registerForSession(data: {
+  id: string
+  session_id: string
+  user_id: string
+}) {
+  return await sql`
+    INSERT INTO session_registrations (
+      id, session_id, user_id, created_at, updated_at
+    )
+    VALUES (
+      ${data.id}, ${data.session_id}, ${data.user_id}, NOW(), NOW()
+    )
+    RETURNING *
+  `
+}
+
+export async function getSessionRegistrations(sessionId: string) {
+  return await sql`
+    SELECT sr.*, u.name AS user_name, u.email AS user_email
+    FROM session_registrations sr
+    JOIN users u ON sr.user_id = u.id
+    WHERE sr.session_id = ${sessionId}
+    ORDER BY sr.created_at ASC
+  `
+}
+
+export async function checkInSessionRegistration(registrationId: string) {
+  return await sql`
+    UPDATE session_registrations
+    SET checked_in = TRUE, check_in_time = NOW(), updated_at = NOW()
+    WHERE id = ${registrationId}
+    RETURNING *
+  `
+}
+
+export async function cancelSessionRegistration(registrationId: string) {
+  return await sql`
+    DELETE FROM session_registrations
+    WHERE id = ${registrationId}
+    RETURNING *
+  `
+}
+
+export async function getUserByQr(qr: string) {
+  const result = await sql`
+    SELECT *
+    FROM users
+    WHERE qr_code = ${qr}
+    LIMIT 1
+  `
+  return result[0] || null
 }
