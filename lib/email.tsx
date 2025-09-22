@@ -2,7 +2,7 @@ import { Resend } from "resend"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const VERIFIED_FROM_EMAIL = "onboarding@resend.dev"
+const VERIFIED_FROM_EMAIL = "noreply@attendees.pathwaystechnologies.com"
 
 console.log("[v0] Email configuration:", {
   resendApiKey: process.env.RESEND_API_KEY ? "✓ Set" : "✗ Missing",
