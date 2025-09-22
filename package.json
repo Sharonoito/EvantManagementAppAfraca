@@ -6,7 +6,8 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start -p $PORT",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -66,10 +67,10 @@
     "uuid": "^13.0.0",
     "vaul": "^0.9.9",
     "xlsx": "latest",
-    "zod": "3.25.67"
+    "zod": "3.25.67",
+    "@prisma/client": "^6.16.1"
   },
   "devDependencies": {
-    "@prisma/client": "^6.16.1",
     "@tailwindcss/postcss": "^4.1.9",
     "@types/node": "^22",
     "@types/qrcode": "^1.5.5",
