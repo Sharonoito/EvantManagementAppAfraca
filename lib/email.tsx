@@ -51,7 +51,7 @@ export async function sendEmail({ to, subject, html }: EmailOptions): Promise<bo
 }
 
 export function createQRCodeEmailTemplate(name: string, qrCodeDataUrl: string, checkInURL: string): string {
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://evant-management-app-afraca.vercel.app"
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "http://attendees.pathwaystechnologies.com"
   const attendeePortalUrl = `${siteUrl}/attendee/profile`
 
   return `
@@ -116,7 +116,7 @@ export function createQRCodeEmailTemplate(name: string, qrCodeDataUrl: string, c
 }
 
 export async function sendQRCodeEmail(to: string, name: string, qrCodeDataUrl: string, qrCode: string) {
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://evant-management-app-afraca.vercel.app"
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "http://attendees.pathwaystechnologies.com"
   const attendeePortalUrl = `${siteUrl}/attendee?email=${encodeURIComponent(to)}`
 
   const htmlContent = createQRCodeEmailTemplate(name, qrCodeDataUrl, qrCode)
