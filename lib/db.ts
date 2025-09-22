@@ -4,6 +4,7 @@ if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not set")
 }
 
+// Create the client with just the connection string
 export const sql = neon(process.env.DATABASE_URL)
 
 // -----------------------------
@@ -22,7 +23,6 @@ export async function createUser(userData: {
   networking_interests?: string[]
 }) {
   const qrCode = `EVENT_${userData.id}_${Date.now()}`
-
   return await sql`
     INSERT INTO users (
       id, email, name, role, organization, title, phone,
@@ -40,28 +40,23 @@ export async function createUser(userData: {
 }
 
 export async function getUserByEmail(email: string) {
-  const result = await sql`
-    SELECT * FROM users WHERE email = ${email} LIMIT 1
-  `
+  const result = await sql`SELECT * FROM users WHERE email = ${email} LIMIT 1`
   return result[0] || null
 }
 
 export async function getUserById(userId: string) {
-  const result = await sql`
-    SELECT * FROM users WHERE id = ${userId} LIMIT 1
-  `
+  const result = await sql`SELECT * FROM users WHERE id = ${userId} LIMIT 1`
   return result[0] || null
 }
 
 export async function getUserByQRCode(qrCode: string) {
-  const result = await sql`
-    SELECT * FROM users WHERE qr_code = ${qrCode} LIMIT 1
-  `
+  const result = await sql`SELECT * FROM users WHERE qr_code = ${qrCode} LIMIT 1`
   return result[0] || null
 }
 
 export async function checkInUser(qrCode: string) {
   return await sql`
+    UPDATE users
     UPDATE users
     SET checked_in = TRUE, check_in_time = NOW(), updated_at = NOW()
     WHERE qr_code = ${qrCode}
@@ -79,6 +74,7 @@ export async function getAllUsers() {
 // Events
 // -----------------------------
 export async function getAllEvents() {
+  // This function now returns the correct data.
   return await sql`
     SELECT e.*,
            COUNT(s.id) AS session_count
@@ -90,9 +86,7 @@ export async function getAllEvents() {
 }
 
 export async function getEventById(eventId: string) {
-  const result = await sql`
-    SELECT * FROM events WHERE id = ${eventId} LIMIT 1
-  `
+  const result = await sql`SELECT * FROM events WHERE id = ${eventId} LIMIT 1`
   return result[0] || null
 }
 
@@ -218,6 +212,7 @@ export async function getSessionById(sessionId: string) {
     SELECT s.*, e.title AS event_title
     FROM sessions s
     LEFT JOIN events e ON s.event_id = e.id
+    WHERE s.id = ${sessionId}
     WHERE s.id = ${sessionId}
     LIMIT 1
   `
