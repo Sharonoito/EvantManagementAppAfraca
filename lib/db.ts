@@ -4,7 +4,9 @@ if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not set")
 }
 
+// Create the client with just the connection string
 export const sql = neon(process.env.DATABASE_URL)
+
 console.log("Connected to DB:", process.env.DATABASE_URL)
 
 // Database utility functions
