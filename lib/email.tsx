@@ -50,9 +50,6 @@ export async function sendEmail({ to, subject, html }: EmailOptions): Promise<bo
   }
 }
 
-/**
- * Generate QR code email template
- */
 export function createQRCodeEmailTemplate(
   name: string,
   qrCodeDataUrl: string,
