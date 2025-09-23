@@ -5,16 +5,41 @@ import { AlertCircle, User, Calendar } from "lucide-react"
 import Link from "next/link"
 import { getUserByQRCode } from "@/lib/db"
 import { CheckInButton } from "@/components/checkin/checkin-button"
-import { redirect } from "next/navigation"   // ✅ server redirect
+import { redirect } from "next/navigation"
 
+// ✅ Instead of params, we now read from searchParams (?qr=...)
 interface Props {
-  params: {
-    qrCode: string
+  searchParams: {
+    qr?: string
   }
 }
 
-export default async function CheckInPage({ params }: Props) {
-  const { qrCode } = params
+export default async function CheckInPage({ searchParams }: Props) {
+  const qrCode = searchParams.qr
+
+  // ✅ If no qr provided
+  if (!qrCode) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <CardTitle className="text-red-600">QR Code Missing</CardTitle>
+            <CardDescription>No QR code was provided in the link.</CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-sm text-muted-foreground mb-4">
+              Please check your QR link or contact event support for assistance.
+            </p>
+            <Button asChild variant="outline">
+              <Link href="/">Back to Home</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   const user = await getUserByQRCode(qrCode)
 
   // ✅ If QR invalid
@@ -40,9 +65,9 @@ export default async function CheckInPage({ params }: Props) {
     )
   }
 
-  // ✅ If already checked in → redirect to attendee/profile
+  // ✅ If already checked in → redirect to attendee/profile with qr param
   if (user.checked_in) {
-    redirect("/attendee/profile")
+    redirect(`/attendee/profile?qr=${encodeURIComponent(qrCode)}`)
   }
 
   // ✅ If not yet checked in → show check-in UI
@@ -65,7 +90,15 @@ export default async function CheckInPage({ params }: Props) {
             {user.organization && (
               <p className="text-sm text-muted-foreground">{user.organization}</p>
             )}
-            <Badge variant={user.role === "admin" ? "default" : user.role === "organizer" ? "secondary" : "outline"}>
+            <Badge
+              variant={
+                user.role === "admin"
+                  ? "default"
+                  : user.role === "organizer"
+                  ? "secondary"
+                  : "outline"
+              }
+            >
               {user.role}
             </Badge>
           </div>
