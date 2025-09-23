@@ -123,3 +123,39 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* --------------------------------------------- */
+/* 🎨 Custom Animations & Utilities (Tailwind)   */
+/* --------------------------------------------- */
+@layer utilities {
+  /* Fade-in */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fadeIn {
+    animation: fadeIn 1s ease-in-out both;
+  }
+
+  /* Slow bounce for icons */
+  @keyframes bounceSlow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  .animate-bounceSlow {
+    animation: bounceSlow 3s infinite;
+  }
+
+  /* Gradient text animation */
+  @keyframes gradientText {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+  .animate-gradientText {
+    background: linear-gradient(90deg, #006600, #61CE70, #C9A277);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientText 5s ease infinite alternate;
+  }
+}

@@ -19,105 +19,234 @@ const DEMO_USER_ID = "demo-user-123";
 // MOCK DATA
 // ---------------------------------------------
 
+// MOCK DATA for 8th World Congress
 const mockEvent = {
-  id: 1,
-  name: "Next.js Conference 2024",
-  start_date: "2024-10-27",
-  end_date: "2024-10-29",
-  location: "San Francisco, CA",
+  id: 8,
+  name: "8th World Congress in Rural and Agricultural Finance",
+  theme: "Building Resilient Local Agrifood Systems : The Role of Robust Financing Mechanism and Policy",
+  start_date: "2025-10-27",
+  end_date: "2025-10-31",
+  location: "Sarova Whitesands Beach Resort & Spa, Mombasa, Kenya",
 };
 
+// Sessions extracted from the preliminary agenda
 const mockSessions = [
+  // Pre-Congress: 27th Oct
   {
     id: 1,
-    title: "Introduction to Server Components",
-    description: "Learn how to build powerful and performant applications with Next.js Server Components.",
-    speaker: "Jane Doe",
-    session_date: "2024-10-27",
-    start_time: "09:00",
-    end_time: "10:00",
-    location: "Main Auditorium",
-    max_capacity: 100,
-    registered_count: 75,
+    title: "AFRACA Policy Dissemination Session",
+    description:
+      "Insights into Central Bank Policies on Rural and Agricultural Finance: The Case of AFRACA Members",
+    speaker: "Yaw Brantuo (Moderator), Panelists from Central Banks",
+    session_date: "2025-10-27",
+    start_time: "10:00",
+    end_time: "11:30",
+    location: "Main Hall",
+    max_capacity: 300,
+    registered_count: 150,
     is_registered: false,
   },
   {
     id: 2,
-    title: "Styling with Tailwind CSS",
-    description: "A deep dive into advanced Tailwind CSS techniques for responsive design.",
-    speaker: "John Smith",
-    session_date: "2024-10-27",
-    start_time: "10:30",
-    end_time: "11:30",
-    location: "Room 101",
-    max_capacity: 50,
-    registered_count: 50,
-    is_registered: true,
+    title: "Knowledge Exchange & Special Report Presentation",
+    description:
+      "Presentation of the Special Report on Financing Agrifood Systems Transformation.",
+    speaker: "Ezra Anyango (Moderator) + Panelists from FAO, CPI, Shamba Centre",
+    session_date: "2025-10-27",
+    start_time: "11:45",
+    end_time: "12:45",
+    location: "Main Hall",
+    max_capacity: 300,
+    registered_count: 120,
+    is_registered: false,
   },
   {
     id: 3,
-    title: "State Management in React",
-    description: "Explore different state management patterns, from Context API to Zustand.",
-    speaker: "Emily White",
-    session_date: "2024-10-28",
-    start_time: "09:00",
-    end_time: "10:00",
-    location: "Room 203",
-    max_capacity: null,
-    registered_count: 30,
-    is_registered: false,
-  },
-  {
-    id: 4,
-    title: "Next.js Authentication Best Practices",
-    description: "Secure your Next.js application using NextAuth.js and other popular libraries.",
-    speaker: "Michael Brown",
-    session_date: "2024-10-28",
-    start_time: "10:30",
-    end_time: "11:30",
-    location: "Main Auditorium",
-    max_capacity: 100,
-    registered_count: 105,
-    is_registered: false,
-  },
-  {
-    id: 5,
-    title: "Deployment Strategies for Next.js",
-    description: "A guide to deploying Next.js apps on Vercel, Netlify, and other platforms.",
-    speaker: "Sarah Lee",
-    session_date: "2024-10-29",
-    start_time: "09:00",
-    end_time: "10:00",
-    location: "Room 101",
-    max_capacity: 70,
-    registered_count: 65,
+    title: "Unlocking Public Development Bank Investment",
+    description:
+      "Investment towards more Inclusive Food Systems for youth and women with global case studies.",
+    speaker: "AgriPDB Platform / IFAD",
+    session_date: "2025-10-27",
+    start_time: "13:45",
+    end_time: "14:45",
+    location: "Main Hall",
+    max_capacity: 250,
+    registered_count: 200,
     is_registered: true,
   },
   {
-    id: 6,
-    title: "Build your first Next.js 14 App",
-    description: "A practical workshop on building a modern web app with the new App Router.",
-    speaker: "Chris Davis",
-    session_date: "2024-10-29",
-    start_time: "10:30",
-    end_time: "11:30",
+    id: 4,
+    title: "23rd AFRACA General Assembly",
+    description: "Annual General Assembly for AFRACA Members.",
+    speaker: "AFRACA",
+    session_date: "2025-10-27",
+    start_time: "16:00",
+    end_time: "19:00",
     location: "Main Auditorium",
-    max_capacity: null,
-    registered_count: 45,
+    max_capacity: 400,
+    registered_count: 380,
     is_registered: false,
   },
-  // ADDED NEW FUTURE SESSION FOR DEMO
+
+  // Day 2: 28th Oct
+  {
+    id: 5,
+    title: "Executive Breakfast: Masterclass on AI in Rural and Agricultural Finance",
+    description:
+      "Exclusive masterclass on Artificial Intelligence in Rural and Agricultural Finance.",
+    speaker: "AFRACA / Pathways Technologies",
+    session_date: "2025-10-28",
+    start_time: "08:00",
+    end_time: "10:00",
+    location: "VIP Lounge",
+    max_capacity: 80,
+    registered_count: 80,
+    is_registered: false,
+  },
+  {
+    id: 6,
+    title: "Climate Intelligence Tools for Finance",
+    description: "Showcasing innovative climate intelligence tools.",
+    speaker: "Alliance for Bioversity & CIAT",
+    session_date: "2025-10-28",
+    start_time: "10:30",
+    end_time: "11:10",
+    location: "Room 101",
+    max_capacity: 150,
+    registered_count: 75,
+    is_registered: false,
+  },
   {
     id: 7,
-    title: "Future of Web Development",
-    description: "A look ahead at the next big trends in web technology, frameworks, and tools.",
-    speaker: "Alex Johnson",
-    session_date: "2025-10-30",
+    title: "Catalysing Rural Resilience: Agri-SME Financing",
+    description:
+      "Financing Innovations for Agri-SMEs through Local Institutions.",
+    speaker: "Small Foundation + ARIA + Vista Bank Sierra Leone",
+    session_date: "2025-10-28",
+    start_time: "11:10",
+    end_time: "12:00",
+    location: "Main Hall",
+    max_capacity: 200,
+    registered_count: 150,
+    is_registered: true,
+  },
+  {
+    id: 8,
+    title: "The Role of Digital Lenders in Agribusiness Value Chains",
+    description:
+      "Exploring digital lending innovations across Africa for agribusiness financing.",
+    speaker: "Small Foundation / Emerald Africa + Panellists",
+    session_date: "2025-10-28",
+    start_time: "12:10",
+    end_time: "13:10",
+    location: "Main Auditorium",
+    max_capacity: 220,
+    registered_count: 180,
+    is_registered: false,
+  },
+
+  // Day 3: 29th Oct
+  {
+    id: 9,
+    title: "Opening Session",
+    description:
+      "Keynote speeches, ministerial addresses, and official opening of the Congress.",
+    speaker:
+      "Thomas Essel, Dieudonne Fikiri Alimasi, Dr. Kamau Thugge, Hon. Mutahi Kagwe + IFAD & FAO",
+    session_date: "2025-10-29",
+    start_time: "09:15",
+    end_time: "10:30",
+    location: "Main Auditorium",
+    max_capacity: 500,
+    registered_count: 400,
+    is_registered: true,
+  },
+  {
+    id: 10,
+    title: "Global Session 1: Regional Perspectives on Financing Mechanisms",
+    description:
+      "Global experts share regional insights on integrating finance into food systems pathways.",
+    speaker: "FAO/UNDP, AFRACA, ALIDE, APRACA, CICA",
+    session_date: "2025-10-29",
+    start_time: "11:00",
+    end_time: "13:00",
+    location: "Main Hall",
+    max_capacity: 400,
+    registered_count: 250,
+    is_registered: false,
+  },
+  {
+    id: 11,
+    title: "Business Session 1 (AFRACA): Inclusive Financing Models",
+    description:
+      "Maximizing transformative policies and models for resilient agri-food systems in Africa.",
+    speaker: "AFRACA + Co-operative Bank of Kenya + Credit Agricole du Maroc",
+    session_date: "2025-10-29",
     start_time: "14:00",
-    end_time: "15:00",
-    location: "Room 303",
-    max_capacity: 80,
-    registered_count: 15,
+    end_time: "15:45",
+    location: "Main Hall",
+    max_capacity: 300,
+    registered_count: 260,
+    is_registered: false,
+  },
+
+  // Day 4: 30th Oct
+  {
+    id: 12,
+    title: "Business Session 2 (APRACA): Leveraging Green Finance",
+    description:
+      "Accelerating sustainable agri-food systems in Asia and the Pacific.",
+    speaker: "APRACA + Panelists from Thailand, India, Cambodia, Nepal, Philippines, Indonesia",
+    session_date: "2025-10-30",
+    start_time: "09:00",
+    end_time: "10:45",
+    location: "Main Hall",
+    max_capacity: 350,
+    registered_count: 310,
+    is_registered: true,
+  },
+  {
+    id: 13,
+    title: "Business Session 3 (ALIDE): Building Resilient Agrifood Systems",
+    description:
+      "Latin American institutions share mechanisms to strengthen agri-food financing.",
+    speaker: "ALIDE + Banco de México + Agrobanco Peru + Finagro Colombia",
+    session_date: "2025-10-30",
+    start_time: "11:15",
+    end_time: "13:00",
+    location: "Main Hall",
+    max_capacity: 300,
+    registered_count: 250,
+    is_registered: false,
+  },
+  {
+    id: 14,
+    title: "Global Session 2: Policy Enablers for Financing Agri-food Systems",
+    description:
+      "Global policy enablers and frameworks to strengthen national food system pathways.",
+    speaker: "AFRACA + FAO + IFAD + AGRA + UNDP",
+    session_date: "2025-10-30",
+    start_time: "14:45",
+    end_time: "15:45",
+    location: "Main Auditorium",
+    max_capacity: 400,
+    registered_count: 200,
+    is_registered: false,
+  },
+
+  // Day 5: 31st Oct
+  {
+    id: 15,
+    title: "Wildlife Safari / Mombasa City Tour",
+    description:
+      "Full-day excursion for delegates: Tsavo National Park Safari or Mombasa City Tour.",
+    speaker: "AFRACA Organizing Committee",
+    session_date: "2025-10-31",
+    start_time: "06:30",
+    end_time: "21:30",
+    location: "Tsavo National Park / Mombasa",
+    max_capacity: null,
+    registered_count: 100,
     is_registered: false,
   },
 ];
@@ -195,9 +324,9 @@ export default async function SchedulePage() {
 
           {/* Schedule Tabs */}
           <Tabs defaultValue={eventDates[0]} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-8">
+            <TabsList className="grid w-full grid-cols-5 mb-8 bg-gray-200">
               {eventDates.map((date, index) => (
-                <TabsTrigger key={date} value={date} className="flex flex-col">
+                <TabsTrigger key={date} value={date} className="flex flex-col data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                   <span className="font-medium">Day {index + 1}</span>
                   <span className="text-xs">
                     {new Date(date).toLocaleDateString("en-US", {
@@ -225,52 +354,69 @@ export default async function SchedulePage() {
                   </div>
 
                   <div className="grid gap-6">
-                    {sessionsByDate[date].map((session) => (
-                      <Card key={session.id} className="hover:shadow-lg transition-shadow">
-                        <CardHeader>
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <CardTitle className="text-xl mb-2">{session.title}</CardTitle>
-                              <CardDescription className="text-base mb-3">{session.description}</CardDescription>
-                              <div className="flex items-center gap-4 text-sm text-gray-600">
-                                <div className="flex items-center gap-1">
-                                  <Clock className="h-4 w-4" />
-                                  <span>
-                                    {session.start_time} - {session.end_time}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <MapPin className="h-4 w-4" />
-                                  <span>{session.location}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Users className="h-4 w-4" />
-                                  <span>
-                                    {session.registered_count}/{session.max_capacity || "∞"}
-                                  </span>
+                    {sessionsByDate[date].map((session) => {
+                      const isFull = session.max_capacity && session.registered_count >= session.max_capacity;
+                      const isPast = new Date(`${session.session_date}T${session.end_time}:00Z`) < new Date();
+                      const isRegistered = session.is_registered;
+
+                      return (
+                        <Card key={session.id} className="hover:shadow-lg transition-shadow">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <CardTitle className="text-xl mb-2">{session.title}</CardTitle>
+                                <CardDescription className="text-base mb-3">{session.description}</CardDescription>
+                                <div className="flex items-center gap-4 text-sm text-gray-600">
+                                  <div className="flex items-center gap-1">
+                                    <Clock className="h-4 w-4" />
+                                    <span>
+                                      {session.start_time} - {session.end_time}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <MapPin className="h-4 w-4" />
+                                    <span>{session.location}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Users className="h-4 w-4" />
+                                    <span>
+                                      {session.registered_count}/{session.max_capacity || "∞"}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                            <div className="flex flex-col items-end gap-2">
-                              {session.speaker && <Badge variant="secondary">{session.speaker}</Badge>}
-                              
-                              {/* --- Buttons from your provided code --- */}
-                              <div className="flex gap-2">
-                                <Button asChild variant="outline" size="sm">
-                                  <Link href={`/attendee/sessions/${session.id}`}>View Details</Link>
-                                </Button>
-                                {/* Conditionally show the register button */}
-                                {new Date(`${session.session_date}T${session.start_time}:00Z`) > new Date() && (
-                                  <Button size="sm">Register</Button>
+                              <div className="flex flex-col items-end gap-2">
+                                {session.speaker && <Badge variant="secondary">{session.speaker}</Badge>}
+                                
+                                {isRegistered && (
+                                  <Badge className="bg-blue-600 text-white hover:bg-blue-600">
+                                    Registered
+                                  </Badge>
+                                )}
+                                
+                                {isFull && !isRegistered && (
+                                  <Badge className="bg-red-500 text-white hover:bg-red-500">
+                                    Full
+                                  </Badge>
+                                )}
+
+                                {!isRegistered && !isFull && !isPast && (
+                                  <Button size="sm" className="bg-green-500 hover:bg-green-600">
+                                    Register
+                                  </Button>
+                                )}
+                                {isPast && (
+                                    <Badge variant="outline" className="text-gray-400">Past Session</Badge>
                                 )}
                               </div>
-                              {/* --- End of buttons --- */}
-
                             </div>
+                          </CardHeader>
+                          <div className="px-6 pb-6 pt-0 text-sm text-gray-700">
+                             <p>**Speakers:** {session.speaker}</p>
                           </div>
-                        </CardHeader>
-                      </Card>
-                    ))}
+                        </Card>
+                      );
+                    })}
                   </div>
                 </div>
               </TabsContent>
@@ -286,10 +432,10 @@ export default async function SchedulePage() {
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span>Available</span>
+                  <span>Available (Register)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
                   <span>Registered</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -321,7 +467,6 @@ export default async function SchedulePage() {
     );
   }
 }
-
 
 
 
