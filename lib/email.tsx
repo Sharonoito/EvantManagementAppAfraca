@@ -50,10 +50,13 @@ export async function sendEmail({ to, subject, html }: EmailOptions): Promise<bo
   }
 }
 
-export function createQRCodeEmailTemplate(name: string, qrCodeDataUrl: string, checkInURL: string): string {
+export function createQRCodeEmailTemplate(
+  name: string,
+  qrCodeDataUrl: string,
+  checkInURL: string
+): string {
   const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "http://attendees.pathwaystechnologies.com"
-  // const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://evant-management-app-afraca.vercel.app"  
-  const attendeePortalUrl = `${siteUrl}/attendee/profile`
+  const attendeePortalUrl = `${siteUrl}/attendee/profile/${encodeURIComponent(checkInURL)}`
 
   return `
     <!DOCTYPE html>
@@ -73,6 +76,10 @@ export function createQRCodeEmailTemplate(name: string, qrCodeDataUrl: string, c
           <h2 style="color: #333; margin-top: 0;">Hello ${name}!</h2>
           
           <p>Welcome to the 8th World Congress on Rural & Agricultural Finance. We're excited to have you join us!</p>
+
+          <div style="background: #f8d7da; border: 1px solid #f5c2c7; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0; color: #842029;"><strong>Important:</strong> You'll need to check in with this QR code before accessing your attendee dashboard and congress features.</p>
+          </div>
           
           <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
             <h3 style="margin-top: 0; color: #495057;">Your Check-in QR Code</h3>
@@ -95,11 +102,7 @@ export function createQRCodeEmailTemplate(name: string, qrCodeDataUrl: string, c
               <li>Explore sessions and networking opportunities</li>
             </ol>
           </div>
-          
-          <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px; margin: 20px 0;">
-            <p style="margin: 0; color: #856404;"><strong>Important:</strong> You'll need to check in with this QR code before accessing your attendee dashboard and congress features.</p>
-          </div>
-          
+                
           <p>If you have any questions, please don't hesitate to contact our support team.</p>
           
           <p style="margin-top: 30px;">
@@ -116,9 +119,14 @@ export function createQRCodeEmailTemplate(name: string, qrCodeDataUrl: string, c
   `
 }
 
-export async function sendQRCodeEmail(to: string, name: string, qrCodeDataUrl: string, qrCode: string) {
+export async function sendQRCodeEmail(
+  to: string,
+  name: string,
+  qrCodeDataUrl: string,
+  qrCode: string
+) {
   const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "http://attendees.pathwaystechnologies.com"
-  const attendeePortalUrl = `${siteUrl}/attendee?email=${encodeURIComponent(to)}`
+  const attendeePortalUrl = `${siteUrl}/attendee/profile/${encodeURIComponent(qrCode)}`
 
   const htmlContent = createQRCodeEmailTemplate(name, qrCodeDataUrl, qrCode)
 
@@ -156,6 +164,4 @@ export async function sendTestEmail(to: string): Promise<boolean> {
     subject: "Test Email - Congress App",
     html: testHtml,
   })
-
 }
- 
