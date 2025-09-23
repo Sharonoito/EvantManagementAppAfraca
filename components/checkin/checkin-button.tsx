@@ -33,9 +33,9 @@ export function CheckInButton({ qrCode, userName }: Props) {
       setResult(data)
 
       if (data.success) {
-        // Redirect to attendee portal after successful check-in
+        // Redirect to attendee profile with qrCode included in URL
         setTimeout(() => {
-          router.push("/attendee/profile")
+          router.push(`/attendee/profile?qr=${encodeURIComponent(qrCode)}`)
         }, 2000)
       }
     } catch (error) {
@@ -76,7 +76,11 @@ export function CheckInButton({ qrCode, userName }: Props) {
           )}
           <AlertDescription>
             <p className="font-medium">{result.message}</p>
-            {result.success && <p className="text-sm mt-1">Redirecting to attendee portal...</p>}
+            {result.success && (
+              <p className="text-sm mt-1">
+                Redirecting to your attendee profile...
+              </p>
+            )}
           </AlertDescription>
         </Alert>
       )}
