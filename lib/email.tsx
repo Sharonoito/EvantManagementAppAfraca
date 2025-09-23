@@ -60,7 +60,7 @@ export function createQRCodeEmailTemplate(
     process.env.NEXT_PUBLIC_BASE_URL || "http://attendees.pathwaystechnologies.com"
 
   // User’s specific profile URL (with unique QR code identifier)
-  const attendeePortalUrl = `${siteUrl}/attendee/profile/${encodeURIComponent(qrCode)}`
+  const attendeePortalUrl = `${siteUrl}/attendee/profile?qr=${encodeURIComponent(qrCode)}`
 
   return `
     <!DOCTYPE html>
