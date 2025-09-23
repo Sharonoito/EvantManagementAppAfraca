@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { User, Mail, Building, Phone, QrCode } from "lucide-react"
+import { User, Mail, Building, Phone, QrCode, Clock, MapPin, Users } from "lucide-react"
 import Link from "next/link"
 
 interface UserType {
@@ -59,81 +59,83 @@ export default function ProfilePage() {
   if (error || !user) return <p className="p-8 text-center text-red-500">{error || "User not found."}</p>
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Welcome Hero */}
-        <Card className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg rounded-xl transform transition hover:scale-105 duration-300">
-          <CardContent className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold">Welcome, {user.name}!</h1>
-              <p className="text-indigo-100 mt-1">Here’s your profile and quick access to event features.</p>
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Left Column (Profile Info) */}
+      <aside className="w-96 bg-white dark:bg-gray-800 shadow-xl p-8 rounded-2xl m-6 space-y-8">
+        <div className="flex flex-col items-center justify-center space-y-4">
+          <div className="h-24 w-24 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-5xl font-bold text-gray-500">
+            {user.name.charAt(0)}
+          </div>
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{user.name}</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{user.title}</p>
+          </div>
+        </div>
+
+        {/* Profile Information Card */}
+        <Card className="shadow-none border rounded-lg">
+          <CardHeader>
+            <CardTitle className="text-xl font-bold">Profile Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-4">
+              <Mail className="h-5 w-5 text-[#C9A277]" />
+              <div>
+                <p className="text-sm text-gray-500">Email</p>
+                <p className="font-medium">{user.email}</p>
+              </div>
             </div>
-            <Link href={`/attendee/qr-code?qr=${user.qr_code}`}>
-              <Card className="bg-white text-gray-800 px-4 py-3 shadow-md rounded-lg hover:scale-105 transition duration-300 cursor-pointer">
-                <div className="flex items-center gap-2">
-                  <QrCode className="h-5 w-5" />
-                  View Your QR Code
-                </div>
-              </Card>
-            </Link>
+            <div className="flex items-center gap-4">
+              <Building className="h-5 w-5 text-[#C9A277]" />
+              <div>
+                <p className="text-sm text-gray-500">Organization</p>
+                <p className="font-medium">{user.organization}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <Phone className="h-5 w-5 text-[#C9A277]" />
+              <div>
+                <p className="text-sm text-gray-500">Phone</p>
+                <p className="font-medium">{user.phone}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <User className="h-5 w-5 text-[#C9A277]" />
+              <div>
+                <p className="text-sm text-gray-500">Role</p>
+                <p className="font-medium">{user.role}</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
+      </aside>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Left Column: Basic Info */}
-          <div className="lg:col-span-2 space-y-6">
-            <Card className="shadow-md rounded-xl hover:shadow-lg transition duration-300">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold">Profile Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3">
-                    <User className="h-5 w-5 text-indigo-500" />
-                    <p className="font-medium">{user.name}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Mail className="h-5 w-5 text-indigo-500" />
-                    <p className="font-medium">{user.email}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Building className="h-5 w-5 text-indigo-500" />
-                    <p className="font-medium">{user.organization}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Phone className="h-5 w-5 text-indigo-500" />
-                    <p className="font-medium">{user.phone}</p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-4 mt-2">
-                  <Badge variant="secondary" className="px-3 py-1">
-                    {user.title}
-                  </Badge>
-                  <Badge variant="outline" className="px-3 py-1">
-                    {user.role}
-                  </Badge>
-                </div>
+      {/* Right Column (Main Content) */}
+      <main className="flex-1 p-8">
+        <div className="space-y-8">
+          {/* Welcome and Event Status Card at the top right */}
+          <div className="flex flex-col md:flex-row justify-between items-start gap-6">
+            <Card className="flex-1 bg-gradient-to-r from-[#006600] to-[#61CE70] text-white shadow-lg rounded-xl">
+              <CardContent className="p-6">
+                <p className="text-xl font-semibold">Welcome, {user.name}!</p>
+                <p className="text-sm text-green-100 mt-1">Here’s your profile at a glance.</p>
               </CardContent>
             </Card>
-          </div>
-
-          {/* Right Column: Event Status & Quick Actions */}
-          <div className="space-y-6">
-            <Card className="shadow-md rounded-xl hover:shadow-lg transition duration-300">
+            <Card className="min-w-[250px] shadow-lg rounded-xl">
               <CardHeader>
                 <CardTitle className="text-xl font-bold">Event Status</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span>Registration</span>
-                  <Badge variant="outline" className="text-green-600 border-green-600">
+                  <Badge variant="outline" className="text-[#006600] border-[#006600]">
                     Confirmed
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Check-in</span>
                   {user.checked_in ? (
-                    <Badge variant="outline" className="text-green-600 border-green-600">
+                    <Badge variant="outline" className="text-[#006600] border-[#006600]">
                       Checked In
                     </Badge>
                   ) : (
@@ -142,39 +144,151 @@ export default function ProfilePage() {
                     </Badge>
                   )}
                 </div>
-                {user.check_in_time && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    Checked in at: {new Date(user.check_in_time).toLocaleString()}
-                  </p>
-                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Actions as prominent cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Link href="/attendee/sessions">
+              <Card className="bg-[#61CE70] text-white cursor-pointer shadow-md hover:shadow-lg transition duration-300 transform hover:scale-105">
+                <CardContent className="flex flex-col items-center justify-center space-y-2 p-4 text-center">
+                  <Mail className="h-6 w-6" />
+                  <div className="font-semibold text-base">Browse Sessions</div>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/attendee/networking">
+              <Card className="bg-[#006600] text-white cursor-pointer shadow-md hover:shadow-lg transition duration-300 transform hover:scale-105">
+                <CardContent className="flex flex-col items-center justify-center space-y-2 p-4 text-center">
+                  <User className="h-6 w-6" />
+                  <div className="font-semibold text-base">Find Connections</div>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href={`/attendee/qr-code?qr=${user.qr_code}`}>
+              <Card className="bg-[#C9A277] text-white cursor-pointer shadow-md hover:shadow-lg transition duration-300 transform hover:scale-105">
+                <CardContent className="flex flex-col items-center justify-center space-y-2 p-4 text-center">
+                  <QrCode className="h-6 w-6" />
+                  <div className="font-semibold text-base">View QR Code</div>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+
+          {/* Registered Events Section */}
+          <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-8">My Registered Sessions</h3>
+          <div className="grid grid-cols-1 gap-6">
+            <div className="flex items-center justify-between">
+              <Badge variant="outline" className="px-3 py-1 bg-gray-200 text-gray-800">
+                4 sessions
+              </Badge>
+            </div>
+            {/* Session 1 */}
+            <Card className="shadow-lg hover:shadow-2xl transition-shadow duration-300">
+              <CardContent className="p-6 space-y-4">
                 <div className="flex items-center justify-between">
-                  <span>Member Since</span>
-                  <span className="text-sm text-gray-500">{new Date(user.created_at).toLocaleDateString()}</span>
+                  <h4 className="text-lg font-bold">AFRACA Policy Dissemination Session</h4>
+                  <Link href="/attendee/session/123">
+                    <span className="text-sm text-blue-600 hover:underline">View Details</span>
+                  </Link>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Insights into Central Bank Policies on Rural and Agricultural Finance: The Case of AFRACA Members
+                </p>
+                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" /> 10:00 - 11:30
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" /> Main Hall
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4" /> 150/300
+                  </div>
+                </div>
+                <div className="text-sm text-gray-700">
+                  **Speakers:** Yaw Brantuo (Moderator), Panelists from Central Banks
+                </div>
+                <div className="mt-4">
+                  <Link href="/register/123">
+                    <Badge className="bg-green-600 text-white cursor-pointer hover:bg-green-700">Register</Badge>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
-            <div className="space-y-3">
-              <Link href="/attendee/sessions">
-                <Card className="cursor-pointer hover:bg-indigo-50 dark:hover:bg-gray-700 px-4 py-4 rounded-xl shadow-md hover:shadow-lg transition duration-300">
-                  Browse Sessions
-                </Card>
-              </Link>
-              <Link href="/attendee/networking">
-                <Card className="cursor-pointer hover:bg-indigo-50 dark:hover:bg-gray-700 px-4 py-4 rounded-xl shadow-md hover:shadow-lg transition duration-300">
-                  Find Connections
-                </Card>
-              </Link>
-              <Link href={`/attendee/qr-code?qr=${user.qr_code}`}>
-                <Card className="cursor-pointer hover:bg-indigo-50 dark:hover:bg-gray-700 px-4 py-4 rounded-xl shadow-md hover:shadow-lg transition duration-300">
-                  View QR Code
-                </Card>
-              </Link>
-            </div>
+            {/* Session 2 */}
+            <Card className="shadow-lg hover:shadow-2xl transition-shadow duration-300">
+              <CardContent className="p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-lg font-bold">Knowledge Exchange & Special Report Presentation</h4>
+                  <Link href="/attendee/session/124">
+                    <span className="text-sm text-blue-600 hover:underline">View Details</span>
+                  </Link>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Presentation of the Special Report on Financing Agrifood Systems Transformation.
+                </p>
+                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" /> 11:45 - 12:45
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" /> Main Hall
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4" /> 120/300
+                  </div>
+                </div>
+                <div className="text-sm text-gray-700">
+                  **Speakers:** Ezra Anyango (Moderator) + Panelists from FAO, CPI, Shamba Centre
+                </div>
+                <div className="mt-4">
+                  <Link href="/register/124">
+                    <Badge className="bg-green-600 text-white cursor-pointer hover:bg-green-700">Register</Badge>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Session 3 */}
+            <Card className="shadow-lg hover:shadow-2xl transition-shadow duration-300">
+              <CardContent className="p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-lg font-bold">Unlocking Public Development Bank Investment</h4>
+                  <Link href="/attendee/session/125">
+                    <span className="text-sm text-blue-600 hover:underline">View Details</span>
+                  </Link>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Investment towards more Inclusive Food Systems for youth and women with global case studies.
+                </p>
+                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" /> 13:45 - 14:45
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" /> Main Hall
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4" /> 200/250
+                  </div>
+                </div>
+                <div className="text-sm text-gray-700">
+                  **Speakers:** AgriPDB Platform / IFAD
+                </div>
+                <div className="mt-4">
+                  <Link href="/register/125">
+                    <Badge className="bg-green-600 text-white cursor-pointer hover:bg-green-700">Register</Badge>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }
+
