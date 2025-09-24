@@ -34,7 +34,6 @@ export default function UsersPage() {
   const fetchUsers = async () => {
     try {
       const response = await fetch("/api/admin/users")
-      console.log("response",response)
       if (response.ok) {
         const data = await response.json()
         setUsers(data)
@@ -46,34 +45,23 @@ export default function UsersPage() {
     }
   }
 
-  const handleSendAllQRCodes = async (userIds:string[]) => {
+  const handleSendAllQRCodes = async (userIds: string[]) => {
     setSendingQR(true)
     try {
       const response = await fetch("/api/admin/users/send-qr", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userIds,bulk: true }),
+        body: JSON.stringify({ userIds, bulk: true }),
       })
 
       const result = await response.json()
       if (result.success) {
-        toast({
-          title: "Success",
-          description: result.message,
-        })
+        toast({ title: "Success", description: result.message })
       } else {
-        toast({
-          title: "Error",
-          description: result.message,
-          variant: "destructive",
-        })
+        toast({ title: "Error", description: result.message, variant: "destructive" })
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to send QR codes",
-        variant: "destructive",
-      })
+      toast({ title: "Error", description: "Failed to send QR codes", variant: "destructive" })
     } finally {
       setSendingQR(false)
     }
@@ -89,23 +77,12 @@ export default function UsersPage() {
 
       const result = await response.json()
       if (result.success) {
-        toast({
-          title: "Success",
-          description: "QR code sent successfully!",
-        })
+        toast({ title: "Success", description: "QR code sent successfully!" })
       } else {
-        toast({
-          title: "Error",
-          description: result.message,
-          variant: "destructive",
-        })
+        toast({ title: "Error", description: result.message, variant: "destructive" })
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to send QR code",
-        variant: "destructive",
-      })
+      toast({ title: "Error", description: "Failed to send QR code", variant: "destructive" })
     }
   }
 
@@ -122,14 +99,14 @@ export default function UsersPage() {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">User Management</h1>
             <p className="text-gray-600 dark:text-gray-300">Manage all registered users for the event</p>
           </div>
-          <div className="flex gap-3 mt-4 md:mt-0">
-            <Button asChild variant="outline">
+          <div className="flex flex-wrap gap-3 mt-4 md:mt-0">
+            <Button asChild variant="outline" className="hover:bg-green-50 hover:text-green-700 border-green-300">
               <Link href="/admin/users/import">
                 <Upload className="h-4 w-4 mr-2" />
                 Import Users
               </Link>
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="hover:bg-purple-50 hover:text-purple-700 border-purple-300">
               <Link href="/admin/users/export">
                 <Download className="h-4 w-4 mr-2" />
                 Export Users
@@ -137,14 +114,14 @@ export default function UsersPage() {
             </Button>
             <Button
               variant="outline"
-              className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
-              onClick={ ()=> handleSendAllQRCodes(users.map(user => user.id))}
+              className="bg-green-600 hover:bg-green-700 text-white border-green-700 shadow-md transition"
+              onClick={() => handleSendAllQRCodes(users.map((user) => user.id))}
               disabled={sendingQR || users.length === 0}
             >
               <Mail className="h-4 w-4 mr-2" />
               {sendingQR ? "Sending..." : "Send QR Codes to All"}
             </Button>
-            <Button asChild>
+            <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white shadow-md transition">
               <Link href="/admin/users/new">
                 <Plus className="h-4 w-4 mr-2" />
                 Add User
@@ -154,7 +131,7 @@ export default function UsersPage() {
         </div>
 
         {/* Search and Filters */}
-        <Card className="mb-6">
+        <Card className="mb-6 shadow-sm hover:shadow-md transition">
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
@@ -162,26 +139,26 @@ export default function UsersPage() {
                 <Input placeholder="Search users by name, email, or organization..." className="pl-10" />
               </div>
               <div className="flex gap-2">
-                <Button variant="outline">All Users</Button>
-                <Button variant="outline">Attendees</Button>
-                <Button variant="outline">Organizers</Button>
-                <Button variant="outline">Checked In</Button>
+                <Button variant="outline" className="hover:bg-blue-50 hover:text-blue-700">All Users</Button>
+                <Button variant="outline" className="hover:bg-green-50 hover:text-green-700">Attendees</Button>
+                <Button variant="outline" className="hover:bg-purple-50 hover:text-purple-700">Organizers</Button>
+                <Button variant="outline" className="hover:bg-teal-50 hover:text-teal-700">Checked In</Button>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Users Table */}
-        <Card>
+        <Card className="shadow-md hover:shadow-lg transition">
           <CardHeader>
-            <CardTitle>All Users ({users.length})</CardTitle>
+            <CardTitle className="text-blue-700">All Users ({users.length})</CardTitle>
             <CardDescription>Complete list of registered users</CardDescription>
           </CardHeader>
           <CardContent>
             {users.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-muted-foreground mb-4">No users found</p>
-                <Button asChild>
+                <Button asChild className="bg-blue-600 text-white hover:bg-blue-700">
                   <Link href="/admin/users/import">Import Users</Link>
                 </Button>
               </div>
@@ -200,7 +177,7 @@ export default function UsersPage() {
                 </TableHeader>
                 <TableBody>
                   {users.map((user) => (
-                    <TableRow key={user.id}>
+                    <TableRow key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
@@ -218,13 +195,14 @@ export default function UsersPage() {
                           variant={
                             user.role === "admin" ? "default" : user.role === "organizer" ? "secondary" : "outline"
                           }
+                          className="capitalize"
                         >
                           {user.role}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         {user.checked_in ? (
-                          <Badge variant="outline" className="text-green-600 border-green-600">
+                          <Badge variant="outline" className="text-green-700 border-green-600 bg-green-50">
                             Checked In
                           </Badge>
                         ) : (
