@@ -12,19 +12,24 @@ export default function NewSessionPage() {
     description: "",
     event_id: "",
     speaker_name: "",
+    speaker_bio: "",
     start_time: "",
     end_time: "",
     location: "",
     max_attendees: undefined as number | undefined,
+    session_type: "presentation", // default
   })
 
-  // fetch events
+  // Fetch events
   useEffect(() => {
     async function fetchEvents() {
       try {
-        const res = await fetch("/api/events")
+        const res = await fetch("/api/admin/events")
         const data = await res.json()
-        setEvents(data)
+
+        if (data.success && Array.isArray(data.events)) {
+          setEvents(data.events.map((ev: any) => ({ id: ev.id, name: ev.title })))
+        }
       } catch (err) {
         console.error("Error fetching events:", err)
       }
@@ -32,7 +37,7 @@ export default function NewSessionPage() {
     fetchEvents()
   }, [])
 
-  // handle submit
+  // Handle submit
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     try {
@@ -41,7 +46,7 @@ export default function NewSessionPage() {
         ...form,
       }
 
-      const res = await fetch("/api/sessions", {
+      const res = await fetch("/api/admin/sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newSession),
@@ -78,19 +83,26 @@ export default function NewSessionPage() {
           onChange={(e) => setForm({ ...form, description: e.target.value })}
         />
 
-        <select
-          className="w-full border p-2"
-          value={form.event_id}
-          onChange={(e) => setForm({ ...form, event_id: e.target.value })}
-          required
-        >
-          <option value="">Select Event</option>
-          {events.map((ev) => (
-            <option key={ev.id} value={ev.id}>
-              {ev.name}
-            </option>
-          ))}
-        </select>
+        {/* Event dropdown */}
+        <div className="flex flex-col">
+          <label htmlFor="event_id" className="mb-1 font-medium">
+            Associated Event
+          </label>
+          <select
+            id="event_id"
+            className="w-full border p-2"
+            value={form.event_id}
+            onChange={(e) => setForm({ ...form, event_id: e.target.value })}
+            required
+          >
+            <option value="">Select an event</option>
+            {events.map((ev) => (
+              <option key={ev.id} value={ev.id}>
+                {ev.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <input
           type="text"
@@ -98,6 +110,13 @@ export default function NewSessionPage() {
           className="w-full border p-2"
           value={form.speaker_name}
           onChange={(e) => setForm({ ...form, speaker_name: e.target.value })}
+        />
+
+        <textarea
+          placeholder="Speaker Bio"
+          className="w-full border p-2"
+          value={form.speaker_bio}
+          onChange={(e) => setForm({ ...form, speaker_bio: e.target.value })}
         />
 
         <input
@@ -130,16 +149,32 @@ export default function NewSessionPage() {
           onChange={(e) =>
             setForm({
               ...form,
-              max_attendees: e.target.value
-                ? parseInt(e.target.value, 10)
-                : undefined,
+              max_attendees: e.target.value ? parseInt(e.target.value, 10) : undefined,
             })
           }
         />
 
+        {/* Session Type dropdown */}
+        <div className="flex flex-col">
+          <label htmlFor="session_type" className="mb-1 font-medium">
+            Session Type
+          </label>
+          <select
+            id="session_type"
+            className="w-full border p-2"
+            value={form.session_type}
+            onChange={(e) => setForm({ ...form, session_type: e.target.value })}
+          >
+            <option value="presentation">Presentation</option>
+            <option value="workshop">Workshop</option>
+            <option value="panel">Panel</option>
+            <option value="networking">Networking</option>
+          </select>
+        </div>
+
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
         >
           Save Session
         </button>
@@ -147,3 +182,5 @@ export default function NewSessionPage() {
     </div>
   )
 }
+
+
