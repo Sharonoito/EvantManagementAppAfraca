@@ -14,10 +14,12 @@ export default function NewEventPage() {
     location: "",
     max_attendees: 0,
   })
+  const [qrCode, setQrCode] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    await createEvent(form)
+    const result = await createEvent(form)
+    setQrCode(result.qr_code) // Store QR link for preview
     router.push("/admin/events")
   }
 
@@ -74,6 +76,13 @@ export default function NewEventPage() {
           Save Event
         </button>
       </form>
+
+      {qrCode && (
+        <div className="mt-6">
+          <h2 className="font-semibold">QR Code URL:</h2>
+          <p>{qrCode}</p>
+        </div>
+      )}
     </div>
   )
 }
