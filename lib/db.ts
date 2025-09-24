@@ -23,6 +23,12 @@ export async function query<T = any>(text: string, params?: any[]): Promise<T[]>
   return res.rows
 }
 
+export async function sql<T = any>(strings: TemplateStringsArray, ...values: any[]): Promise<T[]> {
+  const text = strings.reduce((prev, curr, i) => prev + curr + (i < values.length ? `$${i + 1}` : ""), "")
+  return query<T>(text, values)
+}
+
+
 // -----------------------------
 // Users
 // -----------------------------
@@ -76,10 +82,10 @@ export async function getUserById(userId: string) {
   return result[0] || null
 }
 
-export async function getUserByQRCode(qrCode: string) {
-  const result = await query(`SELECT * FROM users WHERE qr_code = $1 LIMIT 1`, [qrCode])
-  return result[0] || null
-}
+//export async function getUserByQRCode(qrCode: string) {
+ // const result = await query(`SELECT * FROM users WHERE qr_code = $1 LIMIT 1`, [qrCode])
+//  return result[0] || null
+//}
 
 export async function checkInUser(qrCode: string) {
   const rows = await query(
@@ -195,8 +201,8 @@ export async function updateEvent(eventId: string, eventData: {
   return rows[0]
 }
 
-export async function getEventByQRCode(qrCode: string) {
-  const rows = await query(`SELECT * FROM events WHERE qr_code = $1 LIMIT 1`, [qrCode])
+export async function getEventByQRCode(qr_Code: string) {
+  const rows = await query(`SELECT * FROM events WHERE qr_code = $1 LIMIT 1`, [qr_Code])
   return rows[0] || null
 }
 
