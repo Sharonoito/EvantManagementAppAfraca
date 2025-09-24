@@ -14,11 +14,30 @@ export default function NewEventPage() {
     location: "",
     max_attendees: 0,
   })
+  const [qrCode, setQrCode] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    await createEvent(form)
-    router.push("/admin/events")
+    setLoading(true)
+    setError(null)
+
+    try {
+      const result = await createEvent(form)
+
+      if (result && result.qr_code) {
+        setQrCode(result.qr_code) // ✅ only set if available
+      }
+
+      // Redirect to events list
+      router.push("/admin/events")
+    } catch (err) {
+      console.error("Error creating event:", err)
+      setError("Failed to create event. Please try again.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -31,6 +50,10 @@ export default function NewEventPage() {
         <p className="text-center text-gray-600 dark:text-gray-300 mb-8">
           Fill in the details below to schedule your event
         </p>
+
+        {error && (
+          <p className="text-red-500 text-center mb-4">{error}</p>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -127,12 +150,21 @@ export default function NewEventPage() {
             </button>
             <button
               type="submit"
+              disabled={loading}
               className="px-6 py-2 rounded-lg font-semibold text-white bg-[#006600] hover:bg-[#61CE70] focus:ring-2 focus:ring-[#C9A277] shadow-md transition"
             >
-              Save Event
+              {loading ? "Saving..." : "Save Event"}
             </button>
           </div>
         </form>
+
+        {/* Optional QR Preview (if backend returned it) */}
+        {qrCode && (
+          <div className="mt-6 text-center">
+            <p className="font-medium mb-2">QR Code Preview:</p>
+            <img src={qrCode} alt="Event QR Code" className="mx-auto w-40 h-40" />
+          </div>
+        )}
       </div>
     </div>
   )

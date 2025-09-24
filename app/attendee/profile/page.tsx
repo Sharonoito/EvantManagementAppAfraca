@@ -23,21 +23,21 @@ interface UserType {
 
 export default function ProfilePage() {
   const searchParams = useSearchParams()
-  const qrCode = searchParams.get("qr")
+  const email = searchParams.get("email")
   const [user, setUser] = useState<UserType | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
   useEffect(() => {
-    if (!qrCode) {
-      setError("No QR code provided.")
+    if (!email) {
+      setError("No email provided.")
       setLoading(false)
       return
     }
 
     async function fetchUser() {
       try {
-        const res = await fetch(`/api/users?qr=${qrCode}`)
+        const res = await fetch(`/api/users?email=${email}`)
         if (!res.ok) {
           const data = await res.json()
           throw new Error(data?.message || "Failed to fetch user")
@@ -53,14 +53,14 @@ export default function ProfilePage() {
     }
 
     fetchUser()
-  }, [qrCode])
+  }, [email])
 
   if (loading) return <p className="p-8 text-center text-gray-500">Loading profile...</p>
   if (error || !user) return <p className="p-8 text-center text-red-500">{error || "User not found."}</p>
 
   return (
     <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Left Column (Profile Info) */}
+      {/* Left Column */}
       <aside className="w-96 bg-white dark:bg-gray-800 shadow-xl p-8 rounded-2xl m-6 space-y-8">
         <div className="flex flex-col items-center justify-center space-y-4">
           <div className="h-24 w-24 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-5xl font-bold text-gray-500">
@@ -72,7 +72,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Profile Information Card */}
         <Card className="shadow-none border rounded-lg">
           <CardHeader>
             <CardTitle className="text-xl font-bold">Profile Information</CardTitle>
@@ -110,10 +109,10 @@ export default function ProfilePage() {
         </Card>
       </aside>
 
-      {/* Right Column (Main Content) */}
+      {/* Right Column */}
       <main className="flex-1 p-8">
         <div className="space-y-8">
-          {/* Welcome and Event Status Card at the top right */}
+          {/* Welcome + Event Status */}
           <div className="flex flex-col md:flex-row justify-between items-start gap-6">
             <Card className="flex-1 bg-gradient-to-r from-[#006600] to-[#61CE70] text-white shadow-lg rounded-xl">
               <CardContent className="p-6">
@@ -148,7 +147,7 @@ export default function ProfilePage() {
             </Card>
           </div>
 
-          {/* Quick Actions as prominent cards */}
+          {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Link href="/attendee/sessions">
               <Card className="bg-[#61CE70] text-white cursor-pointer shadow-md hover:shadow-lg transition duration-300 transform hover:scale-105">
@@ -176,7 +175,7 @@ export default function ProfilePage() {
             </Link>
           </div>
 
-          {/* Registered Events Section */}
+          {/* Registered Sessions */}
           <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-8">My Registered Sessions</h3>
           <div className="grid grid-cols-1 gap-6">
             <div className="flex items-center justify-between">
@@ -184,111 +183,50 @@ export default function ProfilePage() {
                 4 sessions
               </Badge>
             </div>
-            {/* Session 1 */}
-            <Card className="shadow-lg hover:shadow-2xl transition-shadow duration-300">
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-lg font-bold">AFRACA Policy Dissemination Session</h4>
-                  <Link href="/attendee/session/123">
-                    <span className="text-sm text-blue-600 hover:underline">View Details</span>
-                  </Link>
-                </div>
-                <p className="text-sm text-gray-600">
-                  Insights into Central Bank Policies on Rural and Agricultural Finance: The Case of AFRACA Members
-                </p>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" /> 10:00 - 11:30
+            {/* Sample Sessions */}
+            {[123, 124, 125].map((id, idx) => (
+              <Card key={id} className="shadow-lg hover:shadow-2xl transition-shadow duration-300">
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-lg font-bold">
+                      {["AFRACA Policy Dissemination", "Knowledge Exchange & Special Report", "Unlocking Public Development Bank Investment"][idx]}
+                    </h4>
+                    <Link href={`/attendee/session/${id}`}>
+                      <span className="text-sm text-blue-600 hover:underline">View Details</span>
+                    </Link>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" /> Main Hall
+                  <p className="text-sm text-gray-600">
+                    {[
+                      "Insights into Central Bank Policies on Rural and Agricultural Finance: The Case of AFRACA Members",
+                      "Presentation of the Special Report on Financing Agrifood Systems Transformation",
+                      "Investment towards more Inclusive Food Systems for youth and women with global case studies"
+                    ][idx]}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4" /> {["10:00 - 11:30", "11:45 - 12:45", "13:45 - 14:45"][idx]}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" /> Main Hall
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4" /> {["150/300", "120/300", "200/250"][idx]}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4" /> 150/300
+                  <div className="text-sm text-gray-700">
+                    **Speakers:** {["Yaw Brantuo (Moderator), Panelists from Central Banks", "Ezra Anyango (Moderator) + Panelists from FAO, CPI, Shamba Centre", "AgriPDB Platform / IFAD"][idx]}
                   </div>
-                </div>
-                <div className="text-sm text-gray-700">
-                  **Speakers:** Yaw Brantuo (Moderator), Panelists from Central Banks
-                </div>
-                <div className="mt-4">
-                  <Link href="/register/123">
-                    <Badge className="bg-green-600 text-white cursor-pointer hover:bg-green-700">Register</Badge>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Session 2 */}
-            <Card className="shadow-lg hover:shadow-2xl transition-shadow duration-300">
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-lg font-bold">Knowledge Exchange & Special Report Presentation</h4>
-                  <Link href="/attendee/session/124">
-                    <span className="text-sm text-blue-600 hover:underline">View Details</span>
-                  </Link>
-                </div>
-                <p className="text-sm text-gray-600">
-                  Presentation of the Special Report on Financing Agrifood Systems Transformation.
-                </p>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" /> 11:45 - 12:45
+                  <div className="mt-4">
+                    <Link href={`/register/${id}`}>
+                      <Badge className="bg-green-600 text-white cursor-pointer hover:bg-green-700">Register</Badge>
+                    </Link>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" /> Main Hall
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4" /> 120/300
-                  </div>
-                </div>
-                <div className="text-sm text-gray-700">
-                  **Speakers:** Ezra Anyango (Moderator) + Panelists from FAO, CPI, Shamba Centre
-                </div>
-                <div className="mt-4">
-                  <Link href="/register/124">
-                    <Badge className="bg-green-600 text-white cursor-pointer hover:bg-green-700">Register</Badge>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Session 3 */}
-            <Card className="shadow-lg hover:shadow-2xl transition-shadow duration-300">
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-lg font-bold">Unlocking Public Development Bank Investment</h4>
-                  <Link href="/attendee/session/125">
-                    <span className="text-sm text-blue-600 hover:underline">View Details</span>
-                  </Link>
-                </div>
-                <p className="text-sm text-gray-600">
-                  Investment towards more Inclusive Food Systems for youth and women with global case studies.
-                </p>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" /> 13:45 - 14:45
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" /> Main Hall
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4" /> 200/250
-                  </div>
-                </div>
-                <div className="text-sm text-gray-700">
-                  **Speakers:** AgriPDB Platform / IFAD
-                </div>
-                <div className="mt-4">
-                  <Link href="/register/125">
-                    <Badge className="bg-green-600 text-white cursor-pointer hover:bg-green-700">Register</Badge>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </main>
     </div>
   )
 }
-

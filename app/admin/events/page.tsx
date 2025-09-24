@@ -1,12 +1,70 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+"use client"
+
+import { useEffect, useState } from "react"
+import { QRCodeCanvas } from "qrcode.react"
+import Link from "next/link"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, MapPin, Users, Plus, Edit, Trash2 } from "lucide-react"
-import Link from "next/link"
-import { getAllEvents } from "@/lib/db"
+import {
+  Calendar,
+  MapPin,
+  Users,
+  Plus,
+  Edit,
+  Trash2,
+  QrCode,
+} from "lucide-react"
 
-export default async function EventsPage() {
-  const events = await getAllEvents()
+interface Event {
+  id: number
+  title: string
+  description: string
+  start_date: string
+  end_date: string
+  location: string
+  status: string
+  session_count?: number
+  qr_code: string
+}
+
+export default function EventsList() {
+  const [events, setEvents] = useState<Event[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Fetch events from your API route
+  useEffect(() => {
+    async function fetchEvents() {
+      try {
+        const res = await fetch("/api/events", { cache: "no-store" })
+        if (!res.ok) throw new Error("Failed to fetch events")
+        const data = await res.json()
+        setEvents(data)
+      } catch (err) {
+        console.error("Error loading events:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchEvents()
+  }, [])
+
+  function downloadQR(id: number) {
+    const canvas = document.getElementById(`qr-${id}`) as HTMLCanvasElement
+    if (!canvas) return
+
+    const url = canvas.toDataURL("image/png")
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `event-${id}-qr.png`
+    link.click()
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -41,59 +99,124 @@ export default async function EventsPage() {
           </div>
         </div>
 
-        {/* Events List - Card Layout */}
-        <div className="space-y-6">
-          {events.length === 0 ? (
-            <Card className="shadow-lg hover:shadow-xl transition-shadow border border-[#61CE70]">
-              <CardContent className="text-center py-10">
-                <Calendar className="h-14 w-14 mx-auto mb-4 text-[#C9A277]" />
-                <p className="text-gray-500 dark:text-gray-300 text-lg">
-                  No events found. Create your first event to get started.
-                </p>
-                <Button
-                  asChild
-                  className="mt-5 bg-[#006600] hover:bg-[#61CE70] text-white shadow-md"
+        {/* Loading state */}
+        {loading ? (
+          <p className="text-center text-gray-500 dark:text-gray-300">
+            Loading events...
+          </p>
+        ) : (
+          <div className="space-y-6">
+            {events.length === 0 ? (
+              <Card className="shadow-lg hover:shadow-xl transition-shadow border border-[#61CE70]">
+                <CardContent className="text-center py-10">
+                  <Calendar className="h-14 w-14 mx-auto mb-4 text-[#C9A277]" />
+                  <p className="text-gray-500 dark:text-gray-300 text-lg">
+                    No events found. Create your first event to get started.
+                  </p>
+                  <Button
+                    asChild
+                    className="mt-5 bg-[#006600] hover:bg-[#61CE70] text-white shadow-md"
+                  >
+                    <Link href="/admin/events/new">
+                      Create Your First Event
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              events.map((event) => (
+                <Card
+                  key={event.id}
+                  className="hover:shadow-2xl transition-transform transform hover:-translate-y-1 rounded-2xl border border-[#C9A277]"
                 >
-                  <Link href="/admin/events/new">Create Your First Event</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            events.map((event) => (
-              <Card
-                key={event.id}
-                className="hover:shadow-2xl transition-transform transform hover:-translate-y-1 rounded-2xl border border-[#C9A277]"
-              >
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="flex items-center gap-2 text-xl font-bold text-[#006600]">
-                        {event.title}
-                        <Badge
-                          className={`${
-                            event.status === "published"
-                              ? "bg-[#006600] text-white"
-                              : event.status === "ongoing"
-                              ? "bg-[#61CE70] text-white"
-                              : "border border-[#C9A277] text-[#C9A277]"
-                          } px-2 py-1 rounded-md text-sm`}
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="flex items-center gap-2 text-xl font-bold text-[#006600]">
+                          {event.title}
+                          <Badge
+                            className={`${
+                              event.status === "published"
+                                ? "bg-[#006600] text-white"
+                                : event.status === "ongoing"
+                                ? "bg-[#61CE70] text-white"
+                                : "border border-[#C9A277] text-[#C9A277] "
+                            } px-2 py-1 rounded-md text-sm`}
+                          >
+                            {event.status}
+                          </Badge>
+                        </CardTitle>
+                        <CardDescription className="text-gray-600 dark:text-gray-300">
+                          {event.description}
+                        </CardDescription>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          asChild
+                          size="sm"
+                          variant="outline"
+                          className="border-[#61CE70] hover:bg-[#61CE70] hover:text-white"
                         >
-                          {event.status}
-                        </Badge>
-                      </CardTitle>
-                      <CardDescription className="text-gray-600 dark:text-gray-300">
-                        {event.description}
-                      </CardDescription>
+                          <Link href={`/admin/events/${event.id}/edit`}>
+                            <Edit className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                        <Button
+                          asChild
+                          size="sm"
+                          variant="outline"
+                          className="border-[#C9A277] hover:bg-[#C9A277] hover:text-white"
+                        >
+                          <Link href="#">
+                            <Trash2 className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-gray-700 dark:text-gray-200">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-[#C9A277]" />
+                        <span className="text-sm">
+                          {new Date(event.start_date).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-[#61CE70]" />
+                        <span className="text-sm">
+                          {event.location || "TBD"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-[#006600]" />
+                        <span className="text-sm">0 attendees</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-[#61CE70]" />
+                        <span className="text-sm">
+                          {event.session_count || 0} sessions
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-5 flex gap-3">
+                      <Button
+                        asChild
+                        size="sm"
+                        className="bg-[#006600] hover:bg-[#61CE70] text-white shadow-md"
+                      >
+                        <Link href={`/admin/events/${event.id}/sessions`}>
+                          Manage Sessions
+                        </Link>
+                      </Button>
                       <Button
                         asChild
                         size="sm"
                         variant="outline"
                         className="border-[#61CE70] hover:bg-[#61CE70] hover:text-white"
                       >
-                        <Link href={`/admin/events/${event.id}/edit`}>
-                          <Edit className="h-4 w-4" />
+                        <Link href={`/admin/events/${event.id}/attendees`}>
+                          View Attendees
                         </Link>
                       </Button>
                       <Button
@@ -102,64 +225,38 @@ export default async function EventsPage() {
                         variant="outline"
                         className="border-[#C9A277] hover:bg-[#C9A277] hover:text-white"
                       >
-                        <Link href="#">
-                          <Trash2 className="h-4 w-4" />
+                        <Link href={`/admin/events/${event.id}/analytics`}>
+                          Analytics
                         </Link>
                       </Button>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-gray-700 dark:text-gray-200">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-[#C9A277]" />
-                      <span className="text-sm">
-                        {new Date(event.start_date).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-[#61CE70]" />
-                      <span className="text-sm">{event.location || "TBD"}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-[#006600]" />
-                      <span className="text-sm">0 attendees</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-[#61CE70]" />
-                      <span className="text-sm">{event.session_count || 0} sessions</span>
-                    </div>
-                  </div>
-                  <div className="mt-5 flex gap-3">
-                    <Button
-                      asChild
-                      size="sm"
-                      className="bg-[#006600] hover:bg-[#61CE70] text-white shadow-md"
-                    >
-                      <Link href={`/admin/events/${event.id}/sessions`}>Manage Sessions</Link>
-                    </Button>
-                    <Button
-                      asChild
-                      size="sm"
-                      variant="outline"
-                      className="border-[#61CE70] hover:bg-[#61CE70] hover:text-white"
-                    >
-                      <Link href={`/admin/events/${event.id}/attendees`}>View Attendees</Link>
-                    </Button>
-                    <Button
-                      asChild
-                      size="sm"
-                      variant="outline"
-                      className="border-[#C9A277] hover:bg-[#C9A277] hover:text-white"
-                    >
-                      <Link href={`/admin/events/${event.id}/analytics`}>Analytics</Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
+
+                    {/* QR Code */}
+                    {event.qr_code && (
+                      <div className="mt-6 flex flex-col items-center">
+                        <QRCodeCanvas
+                          id={`qr-${event.id}`}
+                          value={event.qr_code}
+                          size={160}
+                          includeMargin
+                        />
+                        <Button
+                          onClick={() => downloadQR(event.id)}
+                          size="sm"
+                          variant="outline"
+                          className="mt-3 flex items-center gap-2"
+                        >
+                          <QrCode className="h-4 w-4" />
+                          Download QR
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
