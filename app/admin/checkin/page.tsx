@@ -19,14 +19,6 @@ export default async function CheckInPage() {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Check-in System</h1>
             <p className="text-gray-600 dark:text-gray-300">View all attendees and their check-in status</p>
           </div>
-          <div className="flex gap-3 mt-4 md:mt-0">
-            <Button asChild variant="outline">
-              <Link href="/admin/checkin/manual">Manual Check-in</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/admin/users">Manage Users</Link>
-            </Button>
-          </div>
         </div>
 
         {/* Stats */}
