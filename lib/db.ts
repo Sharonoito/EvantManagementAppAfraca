@@ -1,4 +1,3 @@
-// lib/db.ts
 import "server-only"
 import { Pool } from "pg"
 
@@ -27,7 +26,6 @@ export async function sql<T = any>(strings: TemplateStringsArray, ...values: any
   const text = strings.reduce((prev, curr, i) => prev + curr + (i < values.length ? `$${i + 1}` : ""), "")
   return query<T>(text, values)
 }
-
 
 // -----------------------------
 // Users
@@ -82,11 +80,6 @@ export async function getUserById(userId: string) {
   return result[0] || null
 }
 
-//export async function getUserByQRCode(qrCode: string) {
- // const result = await query(`SELECT * FROM users WHERE qr_code = $1 LIMIT 1`, [qrCode])
-//  return result[0] || null
-//}
-
 export async function checkInUser(qrCode: string) {
   const rows = await query(
     `UPDATE users
@@ -99,11 +92,11 @@ export async function checkInUser(qrCode: string) {
 }
 
 export async function getAllUsers() {
-  return await query(`SELECT * FROM users ORDER BY created_at DESC`)
+  return await query("SELECT * FROM users ORDER BY created_at DESC")
 }
 
 // -----------------------------
-// Events (now with qr_code string)
+// Events
 // -----------------------------
 export async function getAllEvents() {
   try {
@@ -114,24 +107,18 @@ export async function getAllEvents() {
        GROUP BY e.id
        ORDER BY e.start_date DESC`
     )
-    return rows || []  // always return []
+    return rows || []
   } catch (error) {
     console.error("Error fetching events:", error)
-    return []          // fail safe
+    return []
   }
 }
 
-
 export async function getEventById(eventId: string) {
-  const rows = await query(`SELECT * FROM events WHERE id = $1 LIMIT 1`, [eventId])
+  const rows = await query("SELECT * FROM events WHERE id=$1 LIMIT 1", [eventId])
   return rows[0] || null
 }
 
-/**
- * createEvent - creates an event and stores a qr_code string in the event.
- * Note: this function expects you supply `id`. If your events table uses serial PK,
- * adapt this to insert without id then update the qr_code with the returned id.
- */
 export async function createEvent(eventData: {
   id: string
   title: string
@@ -139,11 +126,10 @@ export async function createEvent(eventData: {
   start_date: string
   end_date: string
   location?: string
-  max_attendees?: number
-  registration_deadline?: string
+  max_attendees?: number | null
+  registration_deadline?: string | null
   status?: string
 }) {
-  // qr_code stored as check-in URL
   const qrCode = `${BASE_URL}/checkin/${eventData.id}`
 
   const rows = await query(
@@ -169,34 +155,12 @@ export async function createEvent(eventData: {
   return rows[0]
 }
 
-export async function updateEvent(eventId: string, eventData: {
-  title: string
-  description?: string
-  start_date: string
-  end_date: string
-  location?: string
-  max_attendees?: number
-  registration_deadline?: string
-  status?: string
-}) {
+export async function updateEvent(eventId: string, eventData: any) {
   const rows = await query(
     `UPDATE events
-     SET title=$1, description=$2, start_date=$3, end_date=$4,
-         location=$5, max_attendees=$6, registration_deadline=$7,
-         status=$8, updated_at=NOW()
-     WHERE id=$9
-     RETURNING *`,
-    [
-      eventData.title,
-      eventData.description || "",
-      eventData.start_date,
-      eventData.end_date,
-      eventData.location || "",
-      eventData.max_attendees ?? null,
-      eventData.registration_deadline ?? null,
-      eventData.status || "draft",
-      eventId,
-    ]
+     SET title=$1, description=$2, start_date=$3, end_date=$4, updated_at=NOW()
+     WHERE id=$5 RETURNING *`,
+    [eventData.title, eventData.description || "", eventData.start_date, eventData.end_date, eventId]
   )
   return rows[0]
 }
@@ -206,15 +170,12 @@ export async function getEventByQRCode(qr_Code: string) {
   return rows[0] || null
 }
 
-// alias
 export const getEventByQr = getEventByQRCode
 
 // -----------------------------
-// Event check-ins table helpers
-// (expects table event_checkins with columns id, event_id, email, created_at)
+// Event check-ins
 // -----------------------------
 export async function createEventCheckin(eventId: string, email: string) {
-  // use ON CONFLICT to prevent duplicate checkins for same event+email
   const rows = await query(
     `INSERT INTO event_checkins (event_id, email, created_at)
      VALUES ($1, $2, NOW())
@@ -222,7 +183,6 @@ export async function createEventCheckin(eventId: string, email: string) {
      RETURNING *`,
     [eventId, email]
   )
-  // if unique conflict happened, rows may be empty — return null in that case
   return rows[0] || null
 }
 
@@ -233,36 +193,45 @@ export async function getEventCheckins(eventId: string) {
   )
 }
 
-/**
- * checkInToEventByQr
- * - finds event by qr string
- * - inserts a checkin record for (event.id, email)
- * - looks up the user by email and returns user if found
- *
- * Returns: { event, checkin, user }
- */
 export async function checkInToEventByQr(qrCode: string, email: string) {
   const event = await getEventByQRCode(qrCode)
-  if (!event) {
-    return { event: null, checkin: null, user: null }
-  }
+  if (!event) return { event: null, checkin: null, user: null }
 
   const checkin = await createEventCheckin(String(event.id), email)
-  const user = await getUserByEmail(email) // may return null if user not found
+  const user = await getUserByEmail(email)
 
   return { event, checkin, user }
 }
 
 // -----------------------------
-// Sessions (unchanged)
+// Sessions
 // -----------------------------
 export async function getEventSessions(eventId: string) {
   return await query(
-    `SELECT * FROM sessions
-     WHERE event_id = $1
-     ORDER BY start_time ASC`,
+    `SELECT s.*, COUNT(r.id) AS registration_count
+     FROM sessions s
+     LEFT JOIN session_registrations r ON r.session_id = s.id
+     WHERE s.event_id = $1
+     GROUP BY s.id
+     ORDER BY s.start_time ASC`,
     [eventId]
   )
+}
+
+export async function getAllSessions() {
+  return await query(
+    `SELECT s.*, e.title AS event_title, COUNT(r.id) AS registration_count
+     FROM sessions s
+     LEFT JOIN events e ON e.id = s.event_id
+     LEFT JOIN session_registrations r ON r.session_id = s.id
+     GROUP BY s.id, e.title
+     ORDER BY s.start_time ASC`
+  )
+}
+
+export async function getSessionById(sessionId: string) {
+  const rows = await query("SELECT * FROM sessions WHERE id=$1 LIMIT 1", [sessionId])
+  return rows[0] || null
 }
 
 export async function createSession(sessionData: {
@@ -303,42 +272,7 @@ export async function createSession(sessionData: {
   return rows[0]
 }
 
-export async function getAllSessions() {
-  return await query(
-    `SELECT s.id, s.title, s.description, s.speaker_name, s.start_time,
-            s.end_time, s.location, e.title AS event_title,
-            COUNT(r.id) AS registration_count, s.max_attendees
-     FROM sessions s
-     LEFT JOIN events e ON e.id = s.event_id
-     LEFT JOIN session_registrations r ON r.session_id = s.id
-     GROUP BY s.id, e.title
-     ORDER BY s.start_time ASC`
-  )
-}
-
-export async function getSessionById(sessionId: string) {
-  const rows = await query(
-    `SELECT s.*, e.title AS event_title
-     FROM sessions s
-     LEFT JOIN events e ON s.event_id = e.id
-     WHERE s.id = $1
-     LIMIT 1`,
-    [sessionId]
-  )
-  return rows[0] || null
-}
-
-export async function updateSession(sessionId: string, sessionData: {
-  title: string
-  description?: string
-  speaker_name?: string
-  speaker_bio?: string
-  start_time: string
-  end_time: string
-  location?: string
-  max_attendees?: number
-  session_type?: string
-}) {
+export async function updateSession(sessionId: string, sessionData: any) {
   const rows = await query(
     `UPDATE sessions
      SET title=$1, description=$2, speaker_name=$3, speaker_bio=$4,
@@ -362,6 +296,11 @@ export async function updateSession(sessionId: string, sessionData: {
   return rows[0]
 }
 
+export async function deleteSession(sessionId: string) {
+  const rows = await query("DELETE FROM sessions WHERE id=$1 RETURNING *", [sessionId])
+  return rows[0] || null
+}
+
 // -----------------------------
 // Session registrations
 // -----------------------------
@@ -381,34 +320,40 @@ export async function registerForSession(data: {
   return rows[0]
 }
 
-export async function getSessionRegistrations(sessionId: string) {
+// -----------------------------
+// Attendees
+// -----------------------------
+export async function getEventAttendees(eventId: string) {
   return await query(
-    `SELECT sr.*, u.name AS user_name, u.email AS user_email
-     FROM session_registrations sr
-     JOIN users u ON sr.user_id = u.id
-     WHERE sr.session_id = $1
-     ORDER BY sr.created_at ASC`,
-    [sessionId]
+    `SELECT a.*, u.name, u.email
+     FROM attendees a
+     JOIN users u ON u.id = a.user_id
+     WHERE a.event_id=$1
+     ORDER BY u.created_at DESC`,
+    [eventId]
   )
 }
 
-export async function checkInSessionRegistration(registrationId: string) {
+// -----------------------------
+// Analytics
+// -----------------------------
+export async function getEventAnalytics(eventId: string) {
   const rows = await query(
-    `UPDATE session_registrations
-     SET checked_in = TRUE, check_in_time = NOW(), updated_at = NOW()
-     WHERE id=$1
-     RETURNING *`,
-    [registrationId]
+    `SELECT
+        COUNT(DISTINCT a.user_id) AS total_attendees,
+        COUNT(DISTINCT s.id) AS total_sessions,
+        COUNT(DISTINCT sr.id) AS total_registrations
+     FROM events e
+     LEFT JOIN attendees a ON a.event_id = e.id
+     LEFT JOIN sessions s ON s.event_id = e.id
+     LEFT JOIN session_registrations sr ON sr.session_id = s.id
+     WHERE e.id=$1
+     GROUP BY e.id`,
+    [eventId]
   )
-  return rows[0]
-}
-
-export async function cancelSessionRegistration(registrationId: string) {
-  const rows = await query(
-    `DELETE FROM session_registrations
-     WHERE id=$1
-     RETURNING *`,
-    [registrationId]
-  )
-  return rows[0]
+  return rows[0] || {
+    total_attendees: 0,
+    total_sessions: 0,
+    total_registrations: 0,
+  }
 }

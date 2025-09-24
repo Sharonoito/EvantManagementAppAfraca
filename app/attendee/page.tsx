@@ -3,27 +3,25 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, MapPin, Users, QrCode, User, Bell, AlertCircle } from "lucide-react"
 import Link from "next/link"
-import { getAllEvents, getAllSessions } from "@/lib/db"
+import { getAllEvents, getAllSessions, query } from "@/lib/db"
 
 async function getAttendeeStatus(email: string) {
-  // This would typically get the email from session/auth
-  // For now, we'll check if any user with this email is checked in
-  const { neon } = await import("@neondatabase/serverless")
-  const sql = neon(process.env.DATABASE_URL!)
-
-  const result = await sql`
-    SELECT checked_in, name FROM users 
-    WHERE email = ${email} 
-    LIMIT 1
-  `
-
-  return result[0] || null
+  const rows = await query(
+    `SELECT checked_in, name 
+     FROM users 
+     WHERE email=$1 
+     LIMIT 1`,
+    [email]
+  )
+  return rows[0] || null
 }
 
 export default async function AttendeePage({ searchParams }: { searchParams: { email?: string } }) {
   const events = await getAllEvents()
   const sessions = await getAllSessions()
-  const upcomingSessions = sessions.filter((session) => new Date(session.start_time) > new Date()).slice(0, 3)
+  const upcomingSessions = sessions
+    .filter((session) => new Date(session.start_time) > new Date())
+    .slice(0, 3)
 
   const email = searchParams.email || "demo@example.com" // In real app, get from auth session
   const attendeeStatus = await getAttendeeStatus(email)
@@ -136,7 +134,9 @@ export default async function AttendeePage({ searchParams }: { searchParams: { e
               </CardHeader>
               <CardContent>
                 {upcomingSessions.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">No upcoming sessions scheduled yet</p>
+                  <p className="text-center text-muted-foreground py-8">
+                    No upcoming sessions scheduled yet
+                  </p>
                 ) : (
                   <div className="space-y-4">
                     {upcomingSessions.map((session) => (
@@ -217,7 +217,9 @@ export default async function AttendeePage({ searchParams }: { searchParams: { e
                 </div>
                 <div>
                   <h4 className="font-medium mb-2">Need Help?</h4>
-                  <p className="text-sm text-muted-foreground mb-2">Contact our support team for assistance</p>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Contact our support team for assistance
+                  </p>
                   <Button variant="outline" size="sm" className="w-full bg-transparent">
                     Contact Support
                   </Button>
