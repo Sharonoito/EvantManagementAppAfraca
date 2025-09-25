@@ -1,10 +1,12 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { MessageSquare, ThumbsUp, Clock, User, Search } from "lucide-react"
-import Link from "next/link"
+"use client";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { MessageSquare, ThumbsUp, Clock, User, Search } from "lucide-react";
+import Link from "next/link";
 
 // Mock data for Q&A
 const mockQuestions = [
@@ -31,7 +33,7 @@ const mockQuestions = [
       "Technology can significantly improve access through mobile banking, digital payments, and AI-powered credit scoring systems that don't rely on traditional collateral.",
     created_at: "2024-01-15T11:15:00Z",
   },
-]
+];
 
 export default function QAManagementPage() {
   return (
@@ -176,5 +178,5 @@ export default function QAManagementPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
