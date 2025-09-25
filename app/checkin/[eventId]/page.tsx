@@ -35,7 +35,8 @@ export default async function CheckInPage({ params }: CheckInPageProps) {
       )
     }
 
-    redirect(`/attendee/profile?email=${encodeURIComponent(user.email)}`)
+    // ✅ This line has been updated to include the userId in the URL
+    redirect(`/attendee/profile?email=${encodeURIComponent(user.email)}&userId=${user.id}`)
   }
 
   return (

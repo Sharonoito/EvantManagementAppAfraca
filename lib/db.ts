@@ -91,6 +91,12 @@ export async function checkInUser(qrCode: string) {
   return rows[0] || null
 }
 
+export async function getUserByQRCode(qrCode: string) {
+  const rows = await query(`SELECT * FROM users WHERE qr_code = $1 LIMIT 1`, [qrCode])
+  return rows[0] || null
+}
+
+
 export async function getAllUsers() {
   return await query("SELECT * FROM users ORDER BY created_at DESC")
 }
@@ -355,5 +361,93 @@ export async function getEventAnalytics(eventId: string) {
     total_attendees: 0,
     total_sessions: 0,
     total_registrations: 0,
+  }}
+
+  
+// -----------------------------
+// Networking
+// -----------------------------
+export async function getNetworkingAttendees(currentUserId: string) {
+  return await query(
+    `SELECT id, name, email, organization, title, role
+     FROM users 
+     WHERE id != $1
+       AND consent_networking = TRUE
+       AND checked_in = TRUE
+     ORDER BY created_at DESC`,
+    [currentUserId]
+  );
+}
+
+export async function createMessage(senderId: string, receiverId: string, content: string) {
+  try {
+    // 1. Validate sender exists
+    const senderCheck = await query("SELECT id FROM users WHERE id = $1", [senderId]);
+    if (senderCheck.length === 0) {
+      throw new Error(`Sender with id ${senderId} does not exist`);
+    }
+
+    // 2. Validate receiver exists
+    const receiverCheck = await query("SELECT id FROM users WHERE id = $1", [receiverId]);
+    if (receiverCheck.length === 0) {
+      throw new Error(`Receiver with id ${receiverId} does not exist`);
+    }
+
+    // 3. Insert message
+    const result = await query(
+      `INSERT INTO messages (sender_id, receiver_id, content) 
+       VALUES ($1, $2, $3) 
+       RETURNING *`,
+      [senderId, receiverId, content]
+    );
+
+    return result[0]; // because query returns an array
+  } catch (err) {
+    console.error("createMessage error:", err);
+    throw err;
+  }
+}
+
+export async function getMessages(userId: string, otherUserId: string) {
+  try {
+    // Optional: Validate both users exist before fetching
+    const usersCheck = await query(
+      "SELECT id FROM users WHERE id = $1 OR id = $2",
+      [userId, otherUserId]
+    );
+    if (usersCheck.length < 2) {
+      throw new Error("One or both users do not exist");
+    }
+
+    // Fetch conversation
+    const result = await query(
+      `SELECT * FROM messages
+       WHERE (sender_id = $1 AND receiver_id = $2)
+         OR (sender_id = $2 AND receiver_id = $1)
+       ORDER BY created_at ASC`,
+      [userId, otherUserId]
+    );
+
+    return result; // already an array
+  } catch (err) {
+    console.error("getMessages error:", err);
+    throw err;
+  }
+}
+
+
+export async function updateConsent(userId: string, consent: boolean) {
+  try {
+    const rows = await query(
+      `UPDATE users
+       SET consent_networking = $1, updated_at = NOW()
+       WHERE id = $2
+       RETURNING *`,
+      [consent, userId]
+    );
+    return rows[0] || null;
+  } catch (err) {
+    console.error("updateConsent error:", err);
+    throw err; // Re-throw the error to be caught by the API route handler
   }
 }

@@ -1,5 +1,7 @@
+// app/api/checkin/route.ts
 import { type NextRequest, NextResponse } from "next/server"
 import { getUserByQRCode, checkInUser } from "@/lib/db"
+import { cookies } from "next/headers"
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,10 +9,7 @@ export async function POST(request: NextRequest) {
 
     if (!qrCode) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "QR code is required",
-        },
+        { success: false, message: "QR code is required" },
         { status: 400 },
       )
     }
@@ -27,6 +26,9 @@ export async function POST(request: NextRequest) {
 
     // Check if already checked in
     if (user.checked_in) {
+      // ✅ Still set cookie so we know who current user is
+      cookies().set("current_user_id", user.id)
+
       return NextResponse.json({
         success: false,
         message: "User is already checked in",
@@ -50,6 +52,9 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // ✅ Store their id in a cookie
+    cookies().set("current_user_id", user.id)
+
     return NextResponse.json({
       success: true,
       message: `${user.name} checked in successfully!`,
@@ -64,10 +69,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Check-in error:", error)
     return NextResponse.json(
-      {
-        success: false,
-        message: "Internal server error during check-in",
-      },
+      { success: false, message: "Internal server error during check-in" },
       { status: 500 },
     )
   }
